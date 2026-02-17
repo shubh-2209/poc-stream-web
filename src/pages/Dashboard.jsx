@@ -1,66 +1,130 @@
+import { useEffect, useRef, useCallback, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import {
-  logoutUser,
-  selectUser,
-  selectAuthLoading,
-} from "../features/auth/authSlice";
-import styles from "../features/auth/authPage.module.css";
+  fetchVideos,
+  selectVideos,
+  selectVideosLoading,
+  selectVideosError,
+  selectCurrentPage,
+  selectHasMore,
+} from "../features/videos/videosSlice";
+import Navbar from "../components/Navbar";
+import ReelCard from "../components/ReelCard";
+import styles from "./Dashboard.module.css";
 
 const Dashboard = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const videos = useSelector(selectVideos);
+  const loading = useSelector(selectVideosLoading);
+  const error = useSelector(selectVideosError);
+  const currentPage = useSelector(selectCurrentPage);
+  const hasMore = useSelector(selectHasMore);
 
-  const user = useSelector(selectUser);
-  const loading = useSelector(selectAuthLoading);
+  const [visibleVideoIndex, setVisibleVideoIndex] = useState(0);
+  const containerRef = useRef(null);
+  const observerRef = useRef(null);
 
-  const handleLogout = async () => {
-    await dispatch(logoutUser());
-    navigate("/auth", { replace: true });
-  };
+  useEffect(() => {
+    dispatch(fetchVideos({ page: 1, limit: 1000 }));
+  }, [dispatch]);
 
-  const handleUploadRedirect = () => {
-    navigate("/upload");
-  };
+  useEffect(() => {
+    if (videos.length > 0) {
+      console.log('Videos loaded:', videos);
+      console.log('First video:', videos[0]);
+    }
+  }, [videos]);
 
-  const handleLiveRedirect = () => {
-    navigate("/live");
-  };
+  const lastVideoRef = useCallback(
+    (node) => {
+      if (loading) return;
+      if (observerRef.current) observerRef.current.disconnect();
+
+      observerRef.current = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting && hasMore) {
+          dispatch(fetchVideos({ page: currentPage + 1, limit: 1000 }));
+        }
+      });
+
+      if (node) observerRef.current.observe(node);
+    },
+    [loading, hasMore, currentPage, dispatch]
+  );
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const index = parseInt(entry.target.dataset.index);
+            setVisibleVideoIndex(index);
+          }
+        });
+      },
+      { threshold: 0.7 }
+    );
+
+    const videoElements = container.querySelectorAll("[data-index]");
+    videoElements.forEach((el) => observer.observe(el));
+
+    return () => observer.disconnect();
+  }, [videos]);
 
   return (
-    <div className={styles.wrapper}>
-      <div className={styles.card}>
-        <h1 className={styles.greeting}>
-          👋 Welcome, {user?.fullName || "User"}!
-        </h1>
+    <div className={styles.dashboard}>
+      <Navbar />
 
-        <p className={styles.email}>📧 {user?.email}</p>
-        <p className={styles.id}>🆔 User ID: {user?.id}</p>
+     
+     <div className="up_btn">
+      <button 
+        className={styles.uploadBtn} 
+        onClick={() => navigate("/upload")}
+      >
+        + Upload Reel
+      </button>
+      </div>
 
-        <div style={{ marginTop: "20px", display: "flex", gap: "12px", flexWrap: "wrap" }}>
-          <button
-            onClick={handleUploadRedirect}
-            className={styles.logoutBtn}
+      <div className={styles.reelsContainer} ref={containerRef}>
+        {videos.map((video, index) => (
+          <div
+            key={video.id || index}
+            data-index={index}
+            ref={index === videos.length - 1 ? lastVideoRef : null}
+            style={{ paddingTop: index === 0 ? '70px' : '0' }}
           >
-            📤 Upload Video
-          </button>
+            <ReelCard video={video} isVisible={visibleVideoIndex === index} />
+          </div>
+        ))}
 
-          <button
-            onClick={handleLiveRedirect}
-            className={styles.logoutBtn}
-          >
-            🔴 Go Live
-          </button>
-        </div>
+        {loading && (
+          <div className={styles.loader}>
+            <div className={styles.spinner}></div>
+            <p>Loading more reels...</p>
+          </div>
+        )}
 
-        <button
-          onClick={handleLogout}
-          disabled={loading}
-          className={styles.logoutBtn}
-          style={{ marginTop: "20px", backgroundColor: "#ff4d4f" }}
-        >
-          {loading ? "Logging out..." : "Logout"}
-        </button>
+        {error && (
+          <div className={styles.error}>
+            <p>❌ {error}</p>
+          </div>
+        )}
+
+        {!loading && !hasMore && videos.length > 0 && (
+          <div className={styles.endMessage}>
+            <p>🎉 You've reached the end!</p>
+          </div>
+        )}
+
+        {!loading && videos.length === 0 && (
+          <div className={styles.empty}>
+            <p>📹 No videos available yet</p>
+          </div>
+        )}
       </div>
     </div>
   );
