@@ -11,7 +11,6 @@ const ReelCard = ({ video, isVisible }) => {
   const [downloadingCleanAudio, setDownloadingCleanAudio] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
 
-  // Get video URL - use cloudinaryUrl for best quality
   const videoUrl = video?.cloudinaryUrl || video?.url;
 
   useEffect(() => {
@@ -30,7 +29,6 @@ const ReelCard = ({ video, isVisible }) => {
     }
   }, [isVisible, videoUrl]);
 
-  // Close menu when clicking outside
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (showMenu && !e.target.closest(`.${styles.menuContainer}`)) {
@@ -66,7 +64,7 @@ const ReelCard = ({ video, isVisible }) => {
   const handleDownloadAudio = async () => {
     if (!video?.id) return;
     
-    setShowMenu(false); // Close menu
+    setShowMenu(false); 
     setDownloadingAudio(true);
     
     try {
@@ -74,25 +72,21 @@ const ReelCard = ({ video, isVisible }) => {
       const state = store.getState();
       const token = state?.auth?.token;
       
-      // First check if audio is already processed
       const statusResponse = await axios.get(`${baseUrl}/videos/${video.id}/status`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       
       if (!statusResponse.data.audioReady) {
-        // Process audio first
         await axios.post(`${baseUrl}/videos/${video.id}/audio/process`, {}, {
           headers: { Authorization: `Bearer ${token}` },
         });
       }
       
-      // Download audio
       const response = await axios.get(`${baseUrl}/videos/${video.id}/audio`, {
         headers: { Authorization: `Bearer ${token}` },
         responseType: 'blob',
       });
       
-      // Create download link
       const blob = new Blob([response.data], { type: 'audio/mpeg' });
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -114,7 +108,7 @@ const ReelCard = ({ video, isVisible }) => {
   const handleDownloadCleanAudio = async () => {
     if (!video?.id) return;
     
-    setShowMenu(false); // Close menu
+    setShowMenu(false); 
     setDownloadingCleanAudio(true);
     
     try {
@@ -122,25 +116,21 @@ const ReelCard = ({ video, isVisible }) => {
       const state = store.getState();
       const token = state?.auth?.token;
       
-      // First check if clean audio is already processed
       const statusResponse = await axios.get(`${baseUrl}/videos/${video.id}/status`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       
       if (!statusResponse.data.cleanAudioReady) {
-        // Process audio first (this will extract and clean)
         await axios.post(`${baseUrl}/videos/${video.id}/audio/process`, {}, {
           headers: { Authorization: `Bearer ${token}` },
         });
       }
       
-      // Download clean audio
       const response = await axios.get(`${baseUrl}/videos/${video.id}/audio/clean`, {
         headers: { Authorization: `Bearer ${token}` },
         responseType: 'blob',
       });
       
-      // Create download link
       const blob = new Blob([response.data], { type: 'audio/mpeg' });
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -168,7 +158,7 @@ const ReelCard = ({ video, isVisible }) => {
     return (
       <div className={styles.reelCard}>
         <div className={styles.errorMessage}>
-          <p>❌ Video URL not available</p>
+          <p>Video URL not available</p>
           <p style={{ fontSize: '0.8rem', opacity: 0.7 }}>
             Video ID: {video?.id}
           </p>
@@ -181,7 +171,7 @@ const ReelCard = ({ video, isVisible }) => {
     return (
       <div className={styles.reelCard}>
         <div className={styles.errorMessage}>
-          <p>❌ Failed to load video</p>
+          <p>Failed to load video</p>
           <p style={{ fontSize: '0.8rem', opacity: 0.7 }}>
             URL: {videoUrl}
           </p>
@@ -203,7 +193,6 @@ const ReelCard = ({ video, isVisible }) => {
         onError={handleVideoError}
       />
       
-      {/* Three Dots Menu */}
       <div className={styles.menuContainer}>
         <button className={styles.menuButton} onClick={toggleMenu}>
           ⋮
@@ -228,7 +217,6 @@ const ReelCard = ({ video, isVisible }) => {
                 </>
               )}
             </button>
-            
             <button 
               className={styles.menuItem}
               onClick={handleDownloadCleanAudio}
