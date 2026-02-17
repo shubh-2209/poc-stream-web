@@ -1,0 +1,865 @@
+/* ─── Page Wrapper ─────────────────────────────────────────── */
+.pageWrapper {
+  min-height: 100vh;
+  background: #0a0a0a;
+  color: #fff;
+  font-family: "DM Mono", "Fira Code", "Courier New", monospace;
+}
+
+/* ─── Header ────────────────────────────────────────────────── */
+.header {
+  border-bottom: 1px solid #1a1a1a;
+  padding: 20px 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.headerLeft {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.headerLogo {
+  width: 32px;
+  height: 32px;
+  background: #e8ff47;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+}
+
+.headerTitle {
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+
+.headerBadge {
+  font-size: 12px;
+  color: #444;
+  letter-spacing: 0.1em;
+}
+
+/* ─── Main ──────────────────────────────────────────────────── */
+.main {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 48px 24px;
+}
+
+/* ─── Hero ──────────────────────────────────────────────────── */
+.hero {
+  margin-bottom: 48px;
+}
+
+.heroTitle {
+  font-size: clamp(36px, 6vw, 64px);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+  margin: 0;
+}
+
+.heroTitleWhite {
+  color: #fff;
+}
+
+.heroTitleAccent {
+  color: #e8ff47;
+}
+
+.heroSubtitle {
+  color: #555;
+  margin-top: 12px;
+  font-size: 14px;
+}
+
+/* ─── Section ───────────────────────────────────────────────── */
+.section {
+  margin-bottom: 40px;
+}
+
+.sectionDisabled {
+  margin-bottom: 40px;
+  opacity: 0.3;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.sectionEnabled {
+  margin-bottom: 40px;
+  opacity: 1;
+  pointer-events: all;
+  transition: opacity 0.3s ease;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.sectionHeaderConfigure {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 28px;
+}
+
+/* ─── Step Badge ────────────────────────────────────────────── */
+.stepBadge {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  flex-shrink: 0;
+  transition: all 0.3s ease;
+}
+
+.stepBadgeActive {
+  background: #e8ff47;
+  color: #000;
+}
+
+.stepBadgeInactive {
+  background: #222;
+  color: #666;
+}
+
+.stepLabel {
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  font-size: 14px;
+}
+
+/* ─── Drop Zone ─────────────────────────────────────────────── */
+.dropZone {
+  border: 2px dashed #3a3a3a;
+  border-radius: 16px;
+  padding: 56px 32px;
+  text-align: center;
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.02);
+  transition: all 0.2s ease;
+}
+
+.dropZoneDragging {
+  border-color: #e8ff47;
+  background: rgba(232, 255, 71, 0.04);
+}
+
+.dropZoneDisabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+.dropZoneIcon {
+  font-size: 48px;
+  margin-bottom: 16px;
+  line-height: 1;
+}
+
+.dropZoneTitle {
+  color: #fff;
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.dropZoneSubtitle {
+  color: #666;
+  font-size: 14px;
+}
+
+/* ─── Upload Progress ───────────────────────────────────────── */
+.uploadProgressWrapper {
+  margin-top: 20px;
+}
+
+.uploadProgressHeader {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.uploadProgressLabel {
+  color: #888;
+  font-size: 13px;
+}
+
+.uploadProgressValue {
+  color: #e8ff47;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* ─── Progress Bar ──────────────────────────────────────────── */
+.progressBarTrack {
+  background: #1a1a1a;
+  border-radius: 999px;
+  height: 6px;
+  overflow: hidden;
+}
+
+.progressBarFill {
+  height: 100%;
+  background: linear-gradient(90deg, #e8ff47, #47ffb2);
+  border-radius: 999px;
+  transition: width 0.3s ease;
+  box-shadow: 0 0 12px rgba(232, 255, 71, 0.5);
+}
+
+/* ─── Uploaded File Card ────────────────────────────────────── */
+.fileCard {
+  background: #111;
+  border: 1px solid #222;
+  border-radius: 12px;
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.fileCardLeft {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.fileCardIcon {
+  width: 40px;
+  height: 40px;
+  background: rgba(232, 255, 71, 0.1);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+}
+
+.fileCardName {
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.fileCardMeta {
+  color: #555;
+  font-size: 12px;
+  margin-top: 2px;
+}
+
+.removeBtn {
+  background: transparent;
+  border: 1px solid #333;
+  color: #888;
+  border-radius: 8px;
+  padding: 6px 14px;
+  cursor: pointer;
+  font-size: 12px;
+  font-family: inherit;
+  transition: all 0.15s ease;
+}
+
+.removeBtn:hover {
+  border-color: #555;
+  color: #ccc;
+}
+
+/* ─── Tab Switcher ──────────────────────────────────────────── */
+.tabSwitcher {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 28px;
+  background: #111;
+  border-radius: 12px;
+  padding: 4px;
+}
+
+.tabBtn {
+  flex: 1;
+  padding: 10px;
+  border-radius: 8px;
+  border: none;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  font-family: inherit;
+  letter-spacing: 0.05em;
+  transition: all 0.2s ease;
+}
+
+.tabBtnActive {
+  background: #e8ff47;
+  color: #000;
+}
+
+.tabBtnInactive {
+  background: transparent;
+  color: #888;
+}
+
+/* ─── Section Label ─────────────────────────────────────────── */
+.fieldLabel {
+  display: block;
+  color: #999;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+}
+
+/* ─── Chip ──────────────────────────────────────────────────── */
+.chipGroup {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.chip {
+  padding: 8px 18px;
+  border-radius: 999px;
+  border: 1.5px solid #2e2e2e;
+  background: transparent;
+  color: #888;
+  font-size: 13px;
+  font-weight: 400;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-family: inherit;
+  letter-spacing: 0.02em;
+}
+
+.chipActive {
+  border-color: #e8ff47;
+  background: rgba(232, 255, 71, 0.1);
+  color: #e8ff47;
+  font-weight: 600;
+}
+
+/* ─── Quality Grid ──────────────────────────────────────────── */
+.qualityGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.qualityCard {
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1.5px solid #222;
+  background: #111;
+  color: #888;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  transition: all 0.15s ease;
+}
+
+.qualityCardActive {
+  border-color: #e8ff47;
+  background: rgba(232, 255, 71, 0.06);
+  color: #e8ff47;
+}
+
+.qualityCardTitle {
+  font-weight: 700;
+  font-size: 13px;
+  margin-bottom: 3px;
+}
+
+.qualityCardDesc {
+  font-size: 10px;
+  color: #444;
+}
+
+.qualityCardDescActive {
+  font-size: 10px;
+  color: #b8cc33;
+}
+
+/* ─── Advanced Tab ──────────────────────────────────────────── */
+.advancedScroll {
+  max-height: 600px;
+  overflow-y: auto;
+  padding-right: 12px;
+}
+
+.filterGroup {
+  background: #0f0f0f;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.filterGroupTitle {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  margin-bottom: 20px;
+  text-transform: uppercase;
+}
+
+.filterGroupTitleColor    { color: #e8ff47; }
+.filterGroupTitleEffects  { color: #47ffb2; }
+.filterGroupTitleTransform{ color: #ff8c47; }
+.filterGroupTitleStyle    { color: #c77dff; }
+
+/* ─── Slider ────────────────────────────────────────────────── */
+.sliderWrapper {
+  margin-bottom: 20px;
+}
+
+.sliderHeader {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.sliderLabel {
+  color: #999;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+}
+
+.sliderValue {
+  color: #e8ff47;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.sliderInput {
+  width: 100%;
+  height: 4px;
+  border-radius: 999px;
+  outline: none;
+  appearance: none;
+  cursor: pointer;
+}
+
+.sliderInput::-webkit-slider-thumb {
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  background: #e8ff47;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(232, 255, 71, 0.4);
+}
+
+.sliderInput::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  background: #e8ff47;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(232, 255, 71, 0.4);
+}
+
+/* ─── Toggle ────────────────────────────────────────────────── */
+.toggleLabel {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  margin-bottom: 12px;
+}
+
+.toggleTrack {
+  width: 40px;
+  height: 22px;
+  border-radius: 999px;
+  position: relative;
+  transition: background 0.2s ease;
+  flex-shrink: 0;
+}
+
+.toggleTrackOn  { background: #e8ff47; }
+.toggleTrackOff { background: #2a2a2a; }
+
+.toggleThumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  position: absolute;
+  top: 2px;
+  transition: left 0.2s ease;
+}
+
+.toggleThumbOn  { background: #000; left: 20px; }
+.toggleThumbOff { background: #666; left: 2px;  }
+
+.toggleText {
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.toggleTextOn  { color: #fff; }
+.toggleTextOff { color: #888; }
+
+/* ─── Error Banner ──────────────────────────────────────────── */
+.errorBanner {
+  background: rgba(255, 80, 80, 0.08);
+  border: 1px solid rgba(255, 80, 80, 0.3);
+  border-radius: 12px;
+  padding: 16px 20px;
+  color: #ff6060;
+  font-size: 13px;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* ─── Converting Loader ─────────────────────────────────────── */
+.convertingCard {
+  background: #111;
+  border: 1px solid #222;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 16px;
+}
+
+.convertingHeader {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.convertingLabel {
+  color: #888;
+  font-size: 13px;
+}
+
+.convertingSpinner {
+  color: #e8ff47;
+  font-size: 12px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.loaderTrack {
+  background: #1a1a1a;
+  border-radius: 999px;
+  height: 4px;
+  overflow: hidden;
+}
+
+.loaderBar {
+  height: 100%;
+  width: 40%;
+  background: linear-gradient(90deg, transparent, #e8ff47, transparent);
+  border-radius: 999px;
+  animation: slide 1.4s ease-in-out infinite;
+}
+
+@keyframes slide {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(350%); }
+}
+
+/* ─── Convert Button ────────────────────────────────────────── */
+.convertBtn {
+  width: 100%;
+  padding: 18px;
+  border-radius: 14px;
+  border: none;
+  font-size: 15px;
+  font-weight: 700;
+  font-family: inherit;
+  letter-spacing: 0.08em;
+  transition: all 0.2s ease;
+}
+
+.convertBtnActive {
+  background: #e8ff47;
+  color: #000;
+  cursor: pointer;
+}
+
+.convertBtnActive:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.convertBtnDisabled {
+  background: #1a1a1a;
+  color: #333;
+  cursor: not-allowed;
+}
+
+/* ─── Result Card ───────────────────────────────────────────── */
+.resultCard {
+  background: #0f0f0f;
+  border: 1px solid #1f1f1f;
+  border-radius: 20px;
+  padding: 32px;
+  animation: fadeUp 0.4s ease;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.resultHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 28px;
+}
+
+.resultCheckBadge {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #e8ff47;
+  color: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.resultTitle {
+  font-weight: 700;
+  font-size: 16px;
+  letter-spacing: 0.05em;
+}
+
+/* ─── Stat Boxes ────────────────────────────────────────────── */
+.statBoxRow {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+
+.statBox {
+  background: #111;
+  border: 1px solid #222;
+  border-radius: 12px;
+  padding: 16px 20px;
+  flex: 1;
+  min-width: 120px;
+}
+
+.statBoxAccent {
+  background: #111;
+  border: 1px solid rgba(232, 255, 71, 0.25);
+  border-radius: 12px;
+  padding: 16px 20px;
+  flex: 1;
+  min-width: 120px;
+}
+
+.statLabel {
+  color: #555;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+}
+
+.statValue        { color: #fff;    font-size: 20px; font-weight: 700; }
+.statValueAccent  { color: #e8ff47; font-size: 20px; font-weight: 700; }
+
+/* ─── Filters Applied ───────────────────────────────────────── */
+.filtersAppliedCard {
+  background: #111;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 24px;
+}
+
+.filtersAppliedLabel {
+  color: #555;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+}
+
+.filtersAppliedList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.filterTag {
+  background: #1a1a1a;
+  border: 1px solid #2a2a2a;
+  border-radius: 6px;
+  padding: 4px 10px;
+  color: #ccc;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+/* ─── Download Button ───────────────────────────────────────── */
+.downloadBtn {
+  display: block;
+  width: 100%;
+  padding: 18px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #e8ff47, #47ffb2);
+  color: #000;
+  text-decoration: none;
+  text-align: center;
+  font-size: 15px;
+  font-weight: 700;
+  font-family: inherit;
+  letter-spacing: 0.08em;
+  box-sizing: border-box;
+  margin-bottom: 12px;
+  box-shadow: 0 8px 32px rgba(232, 255, 71, 0.25);
+  transition: opacity 0.2s ease, transform 0.15s ease;
+}
+
+.downloadBtn:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+/* ─── Reset Button ──────────────────────────────────────────── */
+.resetBtn {
+  width: 100%;
+  padding: 14px;
+  border-radius: 14px;
+  border: 1px solid #222;
+  background: transparent;
+  color: #555;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 13px;
+  letter-spacing: 0.05em;
+  transition: all 0.15s ease;
+}
+
+.resetBtn:hover {
+  border-color: #444;
+  color: #888;
+}
+
+/* ─── Paste these at the bottom of VideoUpload.module.css ───── */
+
+/* ── Video Player Wrapper ── */
+.videoWrapper {
+  position: relative;
+  margin-top: 16px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #000;
+  line-height: 0;
+}
+
+.videoPlayer {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 12px;
+  background: #000;
+}
+
+/* ── Hover Detection Overlay (transparent, over controls area) ── */
+.hoverDetector {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 52px;   /* covers native browser controls bar */
+  z-index: 10;
+  cursor: pointer;
+  /* background: rgba(255,0,0,0.1); */ /* uncomment to debug */
+}
+
+/* ── Hover Thumbnail Preview (YouTube style) ── */
+.hoverPreview {
+  position: absolute;
+  bottom: 62px;   /* sits above controls */
+  width: 160px;
+  background: #000;
+  border: 2px solid #fff;
+  border-radius: 6px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+  pointer-events: none;
+  z-index: 20;
+  overflow: visible;
+}
+
+.hoverPreviewImg {
+  width: 160px;
+  height: 90px;
+  object-fit: cover;
+  display: block;
+  border-radius: 4px;
+}
+
+.hoverTimeLabel {
+  position: absolute;
+  bottom: -26px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.85);
+  color: #fff;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  white-space: nowrap;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+}
+
+/* ── Thumbnail Status Strip ── */
+.thumbStatusWrapper {
+  margin-top: 12px;
+  padding: 12px 16px;
+  background: #111;
+  border: 1px solid #222;
+  border-radius: 10px;
+}
+
+.thumbStatusHeader {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.thumbStatusLabel {
+  color: #888;
+  font-size: 12px;
+  font-family: "DM Mono", "Fira Code", monospace;
+}
+
+.thumbSuccess {
+  color: #47ffb2;
+  font-size: 12px;
+  font-family: "DM Mono", "Fira Code", monospace;
+  font-weight: 600;
+}
+
+.thumbError {
+  color: #ff6060;
+  font-size: 12px;
+  font-family: "DM Mono", "Fira Code", monospace;
+}

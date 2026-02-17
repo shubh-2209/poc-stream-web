@@ -23,11 +23,19 @@ const Navbar = () => {
   };
 
 
+  const handleUploadRedirect = () => {
+    navigate("/uploadVideo");
+  };
+
+  const handleLiveRedirect = () => {
+    navigate("/live");
+  };
+
   return (
 
 
 
-    
+
     <nav className={styles.navbar}>
       <div className={styles.container}>
         <div className={styles.brand}>
@@ -37,38 +45,51 @@ const Navbar = () => {
         <div className={styles.userSection}>
 
 
-          <div className="pr_5"> 
-
+          <div className="pr_5">
             <ul>
+              <li>
+                <button
+                  onClick={handleUploadRedirect}
+                >
+                  📤 Upload Video
+                </button>
+              </li>
+              <li>
+                <button
+                  onClick={handleLiveRedirect}
+                >
+                  🔴 Go Live
+                </button>
+              </li>
+              <li> <div className={styles.avatar} onClick={toggleProfileDropdown}>
+                {user?.fullName?.charAt(0).toUpperCase() || "U"}
+              </div>
+              </li>
+              <li> <button
+                onClick={handleLogout}
+                disabled={loading}
+                className={styles.logoutBtn}
+              >
 
-            <li> <div className={styles.avatar} onClick={toggleProfileDropdown}>
-              {user?.fullName?.charAt(0).toUpperCase() || "U"}
-            </div>
- </li>
-            <li> <button
-            onClick={handleLogout}
-            disabled={loading}
-            className={styles.logoutBtn}
-          >
-            {loading ? "..." : "Logout"}
-          </button>
- </li>
+                {loading ? "..." : "Logout"}
+              </button>
+              </li>
 
             </ul>
 
-          <div className="right_div">
-            
-            {showProfileDropdown && (
-              <div className={styles.profileDropdown}>
-                <h4>Profile Details</h4>
-                <p><span className={styles.label}>Name:</span> {user?.fullName || "User"}</p>
-                <p><span className={styles.label}>Email:</span> {user?.email || "N/A"}</p>
-              </div>
-            )}
-          </div>
+            <div className="right_div">
 
-          
-              </div>
+              {showProfileDropdown && (
+                <div className={styles.profileDropdown}>
+                  <h4>Profile Details</h4>
+                  <p><span className={styles.label}>Name:</span> {user?.fullName || "User"}</p>
+                  <p><span className={styles.label}>Email:</span> {user?.email || "N/A"}</p>
+                </div>
+              )}
+            </div>
+
+
+          </div>
 
 
         </div>
