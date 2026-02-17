@@ -42,8 +42,6 @@ const Upload = () => {
       });
 
       setUploadSuccess(true);
-      
-      // Redirect to dashboard after 2 seconds
       setTimeout(() => {
         navigate("/dashboard");
       }, 2000);

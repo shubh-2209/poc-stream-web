@@ -3,8 +3,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { logoutUser, selectUser, selectAuthLoading } from "../features/auth/authSlice";
 import styles from "./Navbar.module.css";
-// import styles from "../assets/mycss.css"; 
-// import styles from "mycss.css";
 
 const Navbar = () => {
   const dispatch = useDispatch();
@@ -22,6 +20,9 @@ const Navbar = () => {
     setShowProfileDropdown(!showProfileDropdown);
   };
 
+  const handleProfileClick = () => {
+    navigate("/profile");
+  };
 
   const handleUploadRedirect = () => {
     navigate("/uploadVideo");
@@ -32,19 +33,12 @@ const Navbar = () => {
   };
 
   return (
-
-
-
-
     <nav className={styles.navbar}>
       <div className={styles.container}>
         <div className={styles.brand}>
           <h2>POC Dashboard</h2>
         </div>
-
         <div className={styles.userSection}>
-
-
           <div className="pr_5">
             <ul>
               <li>
@@ -61,7 +55,7 @@ const Navbar = () => {
                   🔴 Go Live
                 </button>
               </li>
-              <li> <div className={styles.avatar} onClick={toggleProfileDropdown}>
+              <li> <div className={styles.avatar} onClick={handleProfileClick}>
                 {user?.fullName?.charAt(0).toUpperCase() || "U"}
               </div>
               </li>
@@ -70,15 +64,11 @@ const Navbar = () => {
                 disabled={loading}
                 className={styles.logoutBtn}
               >
-
                 {loading ? "..." : "Logout"}
               </button>
               </li>
-
             </ul>
-
             <div className="right_div">
-
               {showProfileDropdown && (
                 <div className={styles.profileDropdown}>
                   <h4>Profile Details</h4>
@@ -87,11 +77,7 @@ const Navbar = () => {
                 </div>
               )}
             </div>
-
-
           </div>
-
-
         </div>
       </div>
     </nav>
