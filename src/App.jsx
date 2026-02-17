@@ -4,6 +4,7 @@ import { store } from "./redux/store";
 import AuthPage from "./features/auth/AuthPage";
 import PrivateRoute from "./features/auth/privateRoute";
 import Dashboard from "./pages/Dashboard";
+import Upload from "./pages/Upload";
 
 function App() {
   return (
@@ -13,7 +14,8 @@ function App() {
           <Route path="/auth" element={<AuthPage />} />
  
           <Route element={<PrivateRoute />}>
-            <Route path="/dashboard" element={<Dashboard />} /> 
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/upload" element={<Upload />} />
           </Route>
 
            <Route path="/" element={<Navigate to="/dashboard" replace />} />
