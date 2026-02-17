@@ -6,6 +6,7 @@ import VideoUploadPage from "../pages/VideoUploadPage";
 import LiveStreamingPage from "../pages/LiveStreamingPage";
 import Upload from "../pages/Upload";
 import Profile from "../pages/Profile";
+import LiveStream from "../components/LiveStream";
 
 function AppRoutes() {
   return (
@@ -19,6 +20,7 @@ function AppRoutes() {
           <Route path="/uploadVideo" element={<VideoUploadPage />} />
           <Route path="/live" element={<LiveStreamingPage />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/liveStream" element={<LiveStream />} />
         </Route>
 
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
