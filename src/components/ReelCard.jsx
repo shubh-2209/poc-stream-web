@@ -8,6 +8,7 @@ const ReelCard = ({ video, isVisible }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [error, setError] = useState(false);
   const [downloadingAudio, setDownloadingAudio] = useState(false);
+  const [downloadingCleanAudio, setDownloadingCleanAudio] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
 
   // Get video URL - use cloudinaryUrl for best quality
@@ -110,6 +111,54 @@ const ReelCard = ({ video, isVisible }) => {
     }
   };
 
+  const handleDownloadCleanAudio = async () => {
+    if (!video?.id) return;
+    
+    setShowMenu(false); // Close menu
+    setDownloadingCleanAudio(true);
+    
+    try {
+      const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:3333/api";
+      const state = store.getState();
+      const token = state?.auth?.token;
+      
+      // First check if clean audio is already processed
+      const statusResponse = await axios.get(`${baseUrl}/videos/${video.id}/status`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      
+      if (!statusResponse.data.cleanAudioReady) {
+        // Process audio first (this will extract and clean)
+        await axios.post(`${baseUrl}/videos/${video.id}/audio/process`, {}, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+      }
+      
+      // Download clean audio
+      const response = await axios.get(`${baseUrl}/videos/${video.id}/audio/clean`, {
+        headers: { Authorization: `Bearer ${token}` },
+        responseType: 'blob',
+      });
+      
+      // Create download link
+      const blob = new Blob([response.data], { type: 'audio/mpeg' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${video.title || 'video'}_clean_audio.mp3`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      
+    } catch (err) {
+      console.error("Clean audio download error:", err);
+      alert("Failed to download clean audio: " + (err?.response?.data?.error || err.message));
+    } finally {
+      setDownloadingCleanAudio(false);
+    }
+  };
+
   const toggleMenu = (e) => {
     e.stopPropagation();
     setShowMenu(!showMenu);
@@ -176,6 +225,24 @@ const ReelCard = ({ video, isVisible }) => {
                 <>
                   <span className={styles.menuIcon}>🎵</span>
                   <span>Get Audio</span>
+                </>
+              )}
+            </button>
+            
+            <button 
+              className={styles.menuItem}
+              onClick={handleDownloadCleanAudio}
+              disabled={downloadingCleanAudio}
+            >
+              {downloadingCleanAudio ? (
+                <>
+                  <span className={styles.menuIcon}>⏳</span>
+                  <span>Processing...</span>
+                </>
+              ) : (
+                <>
+                  <span className={styles.menuIcon}>🎧</span>
+                  <span>Get Clean Audio</span>
                 </>
               )}
             </button>
