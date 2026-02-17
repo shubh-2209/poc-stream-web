@@ -28,7 +28,7 @@ const Navbar = () => {
   };
 
   const handleLiveRedirect = () => {
-    navigate("/live");
+    navigate("/liveStream");
   };
 
   return (
