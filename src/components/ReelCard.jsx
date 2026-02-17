@@ -1,10 +1,14 @@
 import { useRef, useState, useEffect } from "react";
+import axios from "axios";
+import { store } from "../redux/store";
 import styles from "./ReelCard.module.css";
 
 const ReelCard = ({ video, isVisible }) => {
   const videoRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [error, setError] = useState(false);
+  const [downloadingAudio, setDownloadingAudio] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
 
   // Get video URL - use cloudinaryUrl for best quality
   const videoUrl = video?.cloudinaryUrl || video?.url;
@@ -25,6 +29,18 @@ const ReelCard = ({ video, isVisible }) => {
     }
   }, [isVisible, videoUrl]);
 
+  // Close menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (showMenu && !e.target.closest(`.${styles.menuContainer}`)) {
+        setShowMenu(false);
+      }
+    };
+
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, [showMenu]);
+
   const togglePlay = () => {
     if (!videoRef.current) return;
 
@@ -44,6 +60,59 @@ const ReelCard = ({ video, isVisible }) => {
   const handleVideoError = (e) => {
     console.error("Video load error:", e, "URL:", videoUrl);
     setError(true);
+  };
+
+  const handleDownloadAudio = async () => {
+    if (!video?.id) return;
+    
+    setShowMenu(false); // Close menu
+    setDownloadingAudio(true);
+    
+    try {
+      const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:3333/api";
+      const state = store.getState();
+      const token = state?.auth?.token;
+      
+      // First check if audio is already processed
+      const statusResponse = await axios.get(`${baseUrl}/videos/${video.id}/status`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      
+      if (!statusResponse.data.audioReady) {
+        // Process audio first
+        await axios.post(`${baseUrl}/videos/${video.id}/audio/process`, {}, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+      }
+      
+      // Download audio
+      const response = await axios.get(`${baseUrl}/videos/${video.id}/audio`, {
+        headers: { Authorization: `Bearer ${token}` },
+        responseType: 'blob',
+      });
+      
+      // Create download link
+      const blob = new Blob([response.data], { type: 'audio/mpeg' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${video.title || 'video'}_audio.mp3`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      
+    } catch (err) {
+      console.error("Audio download error:", err);
+      alert("Failed to download audio: " + (err?.response?.data?.error || err.message));
+    } finally {
+      setDownloadingAudio(false);
+    }
+  };
+
+  const toggleMenu = (e) => {
+    e.stopPropagation();
+    setShowMenu(!showMenu);
   };
 
   if (!videoUrl) {
@@ -84,6 +153,35 @@ const ReelCard = ({ video, isVisible }) => {
         onClick={togglePlay}
         onError={handleVideoError}
       />
+      
+      {/* Three Dots Menu */}
+      <div className={styles.menuContainer}>
+        <button className={styles.menuButton} onClick={toggleMenu}>
+          ⋮
+        </button>
+        
+        {showMenu && (
+          <div className={styles.menuDropdown}>
+            <button 
+              className={styles.menuItem}
+              onClick={handleDownloadAudio}
+              disabled={downloadingAudio}
+            >
+              {downloadingAudio ? (
+                <>
+                  <span className={styles.menuIcon}>⏳</span>
+                  <span>Processing...</span>
+                </>
+              ) : (
+                <>
+                  <span className={styles.menuIcon}>🎵</span>
+                  <span>Get Audio</span>
+                </>
+              )}
+            </button>
+          </div>
+        )}
+      </div>
       
       <div className={styles.overlay}>
         <div className={styles.info}>

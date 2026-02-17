@@ -61,7 +61,6 @@ const Upload = () => {
         <div className={styles.successContainer}>
           <div className={styles.successIcon}>✓</div>
           <h2>Upload Successful!</h2>
-          <p>Redirecting to dashboard...</p>
         </div>
       </div>
     );
@@ -99,7 +98,7 @@ const Upload = () => {
                   <>
                     <div className={styles.uploadIcon}>☁️</div>
                     <p>Click to select video or drag and drop</p>
-                    <p className={styles.hint}>MP4, AVI, MOV, MKV, WEBM (Max 2GB)</p>
+                    <p className={styles.hint}>MP4, AVI, MOV, MKV, WEBM (Max 90MB)</p>
                   </>
                 )}
               </label>
