@@ -3,10 +3,9 @@ import AuthPage from "../features/auth/AuthPage";
 import PrivateRoute from "../features/auth/PrivateRoute";
 import Dashboard from "../pages/Dashboard";
 import VideoUploadPage from "../pages/VideoUploadPage";
-import LiveStreamingPage from "../pages/LiveStreamingPage";
 import Upload from "../pages/Upload";
 import Profile from "../pages/Profile";
-import LiveStream from "../components/LiveStream";
+import LiveStream from "../pages/LiveStream";
 
 function AppRoutes() {
   return (
@@ -18,7 +17,6 @@ function AppRoutes() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/upload" element={<Upload />} />
           <Route path="/uploadVideo" element={<VideoUploadPage />} />
-          <Route path="/live" element={<LiveStreamingPage />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/liveStream" element={<LiveStream />} />
         </Route>
