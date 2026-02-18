@@ -1,4 +1,4 @@
-const BASE_URL = 'http://localhost:3333'
+const BASE_URL = 'https://jamila-coky-closer.ngrok-free.dev/api'
  
 // Upload with progress tracking
 export function uploadVideo(file, onProgress) {
