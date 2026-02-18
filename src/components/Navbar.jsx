@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { logoutUser, selectUser, selectAuthLoading } from "../features/auth/authSlice";
-import styles from "./Navbar.module.css";
+import styles from "../styles/Dashboard/Navbar.module.css";
 
 const Navbar = () => {
   const dispatch = useDispatch();

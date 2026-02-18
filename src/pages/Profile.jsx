@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { selectUser } from "../features/auth/authSlice";
 import { api } from "../api/apiHelper";
 import Navbar from "../components/Navbar";
-import styles from "./Profile.module.css";
+import styles from '../styles/Profile/Profile.module.css';
 
 const Profile = () => {
   const navigate = useNavigate();

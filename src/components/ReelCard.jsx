@@ -1,7 +1,7 @@
 import { useRef, useState, useEffect } from "react";
 import axios from "axios";
 import { store } from "../redux/store";
-import styles from "./ReelCard.module.css";
+import styles from "../styles/Dashboard/ReelCard.module.css";
 
 const ReelCard = ({ video, isVisible }) => {
   const videoRef = useRef(null);

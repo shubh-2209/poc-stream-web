@@ -8,8 +8,8 @@ import {
   selectAuthLoading,
   selectAuthError,
   selectIsAuthenticated,
-} from "./authSlice";
-import styles from "./AuthPage.module.css";
+} from "../features/auth/authSlice";
+import styles from "../styles/Auth/AuthPage.module.css";
 
 const AuthPage = () => {
   const dispatch = useDispatch();
@@ -26,9 +26,8 @@ const AuthPage = () => {
     password: "",
   });
   const [successMsg, setSuccessMsg] = useState("");
-  const [localErrors, setLocalErrors] = useState({});  // custom validation errors
+  const [localErrors, setLocalErrors] = useState({});  
 
-  // Already logged in → dashboard
   useEffect(() => {
     if (isAuthenticated) {
       navigate("/dashboard", { replace: true });
@@ -54,21 +53,52 @@ const AuthPage = () => {
    const validate = () => {
     const errors = {};
 
-    if (!isLogin && !formData.fullName.trim()) {
-      errors.fullName = "Full name is required";
-    } else if (!isLogin && formData.fullName.trim().length < 3) {
-      errors.fullName = "Full name must be at least 3 characters";
+    if (!isLogin) {
+      if (!formData.fullName.trim()) {
+        errors.fullName = "Full name is required";
+      } else if (formData.fullName.trim().length < 3) {
+        errors.fullName = "Full name must be at least 3 characters";
+      } else if (formData.fullName.trim().length > 50) {
+        errors.fullName = "Full name must not exceed 50 characters";
+      } else if (!/^[a-zA-Z\s]+$/.test(formData.fullName.trim())) {
+        errors.fullName = "Full name can only contain letters and spaces";
+      }
     }
 
     if (!formData.email.trim()) {
       errors.email = "Email is required";
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      errors.email = "Please enter a valid email";
+      errors.email = "Please enter a valid email address";
+    } else if (formData.email.length > 100) {
+      errors.email = "Email must not exceed 100 characters";
     }
 
     if (!formData.password) {
       errors.password = "Password is required";
-    } 
+    } else if (!isLogin) {
+      const passwordErrors = [];
+      
+      if (formData.password.length < 8) {
+        passwordErrors.push("at least 8 characters");
+      }
+      if (formData.password.length > 50) {
+        passwordErrors.push("maximum 50 characters");
+      }
+      if (!/(?=.*[a-z])/.test(formData.password)) {
+        passwordErrors.push("one lowercase letter");
+      }
+      if (!/(?=.*[A-Z])/.test(formData.password)) {
+        passwordErrors.push("one uppercase letter");
+      }
+      if (!/(?=.*\d)/.test(formData.password)) {
+        passwordErrors.push("one number");
+      }
+
+      if (passwordErrors.length > 0) {
+        errors.password = `Password must contain: ${passwordErrors.join(", ")}`;
+      }
+    }
+    
     return errors;
   };
 
@@ -85,7 +115,6 @@ const AuthPage = () => {
     setLocalErrors({});
 
     if (isLogin) {
-      // ── LOGIN ──
       const result = await dispatch(
         loginUser({
           email: formData.email.trim(),
@@ -96,7 +125,6 @@ const AuthPage = () => {
         navigate("/dashboard", { replace: true });
       }
     } else {
-      // ── REGISTER ──
       const result = await dispatch(
         registerUser({
           full_name: formData.fullName.trim(),
@@ -147,6 +175,8 @@ const AuthPage = () => {
                 onChange={handleChange}
                 className={`${styles.input} ${localErrors.fullName ? styles.inputError : ""}`}
                 disabled={loading}
+                maxLength="50"
+                autoComplete="name"
               />
               {localErrors.fullName && (
                 <span className={styles.fieldError}>{localErrors.fullName}</span>
@@ -154,7 +184,6 @@ const AuthPage = () => {
             </div>
           )}
 
-          {/* Email */}
           <div className={styles.inputGroup}>
             <label htmlFor="email" className={styles.label}>
               Email
@@ -168,13 +197,14 @@ const AuthPage = () => {
               onChange={handleChange}
               className={`${styles.input} ${localErrors.email ? styles.inputError : ""}`}
               disabled={loading}
+              maxLength="100"
+              autoComplete="email"
             />
             {localErrors.email && (
               <span className={styles.fieldError}>{localErrors.email}</span>
             )}
           </div>
 
-          {/* Password */}
           <div className={styles.inputGroup}>
             <label htmlFor="password" className={styles.label}>
               Password
@@ -183,18 +213,19 @@ const AuthPage = () => {
               id="password"
               type="password"
               name="password"
-              placeholder="Enter your password (min 8 chars)"
+              placeholder={isLogin ? "Enter your password" : "Min 8 chars, 1 uppercase, 1 lowercase, 1 number"}
               value={formData.password}
               onChange={handleChange}
               className={`${styles.input} ${localErrors.password ? styles.inputError : ""}`}
               disabled={loading}
+              maxLength={isLogin ? "100" : "50"}
+              autoComplete={isLogin ? "current-password" : "new-password"}
             />
             {localErrors.password && (
               <span className={styles.fieldError}>{localErrors.password}</span>
             )}
           </div>
 
-          {/* Submit */}
           <button
             type="submit"
             className={styles.submitBtn}
@@ -210,7 +241,6 @@ const AuthPage = () => {
           </button>
         </form>
 
-        {/* Toggle login/register */}
         <p className={styles.toggleText}>
           {isLogin ? "Don't have an account?" : "Already have an account?"}{" "}
           <button
