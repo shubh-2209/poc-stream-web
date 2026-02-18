@@ -1,6 +1,9 @@
 import axios from 'axios'
 
-export const BACKEND_URL = 'https://jamila-coky-closer.ngrok-free.dev' 
+// export const BACKEND_URL = 'https://jamila-coky-closer.ngrok-free.dev'
+// export const BACKEND_URL = "http://localhost:3333" 
+// export const BACKEND_URL = import.meta.env.VITE_API_URL || "http://localhost:3333/api" ||"https://192.168.0.186:3333/api";
+export const BACKEND_URL = import.meta.env.VITE_API_URL;
 
 export const ICE_SERVERS = [
   { urls: 'stun:stun.l.google.com:19302' },
@@ -11,16 +14,16 @@ const api = axios.create({ baseURL: BACKEND_URL })
 
 export const liveStreamApi = {
   startSession: (title) =>
-    api.post('/api/live-streams/start', { title }),
+    api.post('/live-streams/start', { title }),
 
   uploadChunk: (sessionId, formData) =>
-    api.post(`/api/live-streams/${sessionId}/chunk`, formData, {
+    api.post(`/live-streams/${sessionId}/chunk`, formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
     }),
 
   endSession: (sessionId) =>
-    api.post(`/api/live-streams/${sessionId}/end`),
+    api.post(`/live-streams/${sessionId}/end`),
 
   cancelSession: (sessionId) =>
-    api.post(`/api/live-streams/${sessionId}/cancel`).catch(() => {}),
+    api.post(`/live-streams/${sessionId}/cancel`).catch(() => {}),
 }

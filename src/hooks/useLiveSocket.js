@@ -4,9 +4,11 @@ import { BACKEND_URL } from '../features/liveStream/liveStreamApi'
 
 export function useLiveSocket() {
   const [socket, setSocket] = useState(null)
+  const SOCKET_URL =
+  import.meta.env.VITE_SOCKET_URL || "http://localhost:3333";
 
   useEffect(() => {
-    const s = io(BACKEND_URL, {
+    const s = io(SOCKET_URL, {
       transports: ['websocket'],
       reconnection: true,
       reconnectionDelay: 1000,
