@@ -14,7 +14,7 @@ import {
   selectThumbCount,
 } from '../features/videoThumbnail/videoThumbnailSlice'
 // import { getThumbnailImageUrl } from '../features/videoThumbnail/videoThumbnailApi'
-import styles from '../styles/VideoUpload.module.css'
+import styles from '../styles/Upload/VideoUpload.module.css'
 
 // ─── Constants ────────────────────────────────────────────────
 const FORMATS = [

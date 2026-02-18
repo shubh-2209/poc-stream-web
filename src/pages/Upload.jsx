@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../api/apiHelper";
 import Navbar from "../components/Navbar";
-import styles from "./Upload.module.css";
+import styles from "../styles/Upload/Upload.module.css";
 
 const Upload = () => {
   const navigate = useNavigate();

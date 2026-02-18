@@ -11,7 +11,7 @@ import {
 } from "../features/videos/videosSlice";
 import Navbar from "../components/Navbar";
 import ReelCard from "../components/ReelCard";
-import styles from "./Dashboard.module.css";
+import styles from "../styles/Dashboard/Dashboard.module.css";
 
 const Dashboard = () => {
   const dispatch = useDispatch();

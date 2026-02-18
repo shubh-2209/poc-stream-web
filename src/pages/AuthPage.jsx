@@ -8,8 +8,8 @@ import {
   selectAuthLoading,
   selectAuthError,
   selectIsAuthenticated,
-} from "./authSlice";
-import styles from "./AuthPage.module.css";
+} from "../features/auth/authSlice";
+import styles from "../styles/Auth/AuthPage.module.css";
 
 const AuthPage = () => {
   const dispatch = useDispatch();

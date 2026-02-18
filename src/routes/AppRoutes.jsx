@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import AuthPage from "../features/auth/AuthPage";
+import AuthPage from "../pages/AuthPage";
 import PrivateRoute from "../features/auth/PrivateRoute";
 import Dashboard from "../pages/Dashboard";
 import VideoUploadPage from "../pages/VideoUploadPage";
