@@ -1,4 +1,4 @@
-import { useRef, useEffect, useCallback } from 'react'
+import { useRef, useEffect, useCallback, useState } from 'react'
 import { useDispatch, useSelector } from "react-redux";
 import {
     selectBroadcaster,
@@ -7,6 +7,7 @@ import {
 } from '../../features/liveStream/liveStreamSlice'
 import { liveStreamApi, ICE_SERVERS } from '../../features/liveStream/liveStreamApi'
 import { useMediaRecorder } from '../../hooks/useMediaRecorder'
+import { SelfieSegmentation } from '@mediapipe/selfie_segmentation'
 
 export default function BroadcasterView({ onBack, socket }) {
     const dispatch = useDispatch()
@@ -18,6 +19,18 @@ export default function BroadcasterView({ onBack, socket }) {
     const sessionRef = useRef(sessionId)           // stale-closure-safe mirror of sessionId
     const { start: startRecording, stop: stopRecording } = useMediaRecorder()
 
+    // Background processing refs
+    const canvasRef          = useRef(null)
+    const processedStreamRef = useRef(null)
+    const segmentationRef    = useRef(null)
+    const animFrameRef       = useRef(null)
+
+    // Only raw and blur — replace removed
+    const [backgroundMode, setBackgroundMode] = useState('raw')
+
+    // FIX 3: preview active flag (not tied to isLive)
+    const [previewActive, setPreviewActive] = useState(false)
+
     useEffect(() => { sessionRef.current = sessionId }, [sessionId])
 
     // ─── Create peer for a viewer ─────────────────────────────────────────────
@@ -27,7 +40,8 @@ export default function BroadcasterView({ onBack, socket }) {
         const pc = new RTCPeerConnection({ iceServers: ICE_SERVERS })
         peersRef.current.set(viewerId, pc)
 
-        streamRef.current.getTracks().forEach((track) => pc.addTrack(track, streamRef.current))
+        const activeStream = processedStreamRef.current || streamRef.current
+        activeStream.getTracks().forEach((track) => pc.addTrack(track, activeStream))
 
         pc.onicecandidate = ({ candidate }) => {
             if (candidate) socket?.emit('ice-candidate', { target: viewerId, candidate, sessionId: currentSessionId })
@@ -84,8 +98,81 @@ export default function BroadcasterView({ onBack, socket }) {
         streamRef.current = null
         if (videoRef.current) videoRef.current.srcObject = null
     }
+    const cleanupBackground = () => {
+        if (animFrameRef.current) { cancelAnimationFrame(animFrameRef.current); animFrameRef.current = null }
+        if (segmentationRef.current) { segmentationRef.current.close(); segmentationRef.current = null }
+        processedStreamRef.current = null
+    }
 
-    // ─── Go Live ──────────────────────────────────────────────────────────────
+    // Blur segmentation — replace removed entirely
+    const startSegmentation = useCallback(async (rawStream) => {
+        const canvas = canvasRef.current
+        const ctx    = canvas.getContext('2d')
+        canvas.width  = 1280
+        canvas.height = 720
+
+        const hiddenVideo     = document.createElement('video')
+        hiddenVideo.srcObject = rawStream
+        hiddenVideo.autoplay  = true
+        hiddenVideo.muted     = true
+        hiddenVideo.width     = 1280
+        hiddenVideo.height    = 720
+        await new Promise((res) => { hiddenVideo.onloadedmetadata = res })
+        await hiddenVideo.play()
+
+        const segmentation = new SelfieSegmentation({
+            locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/${file}`,
+        })
+        segmentation.setOptions({ modelSelection: 1 })
+        segmentationRef.current = segmentation
+
+        // Correct compositing order for blur:
+        // 1. Clear canvas
+        // 2. Draw full camera frame (source-over)
+        // 3. Apply mask -> keep only person (destination-in)
+        // 4. Draw blurred frame behind person (destination-over)
+        segmentation.onResults((results) => {
+            ctx.save()
+
+            // Step 1: Clear
+            ctx.clearRect(0, 0, canvas.width, canvas.height)
+            ctx.filter = 'none'
+
+            // Step 2: Draw full camera frame
+            ctx.globalCompositeOperation = 'source-over'
+            ctx.drawImage(results.image, 0, 0, canvas.width, canvas.height)
+
+            // Step 3: Apply mask — keeps only person pixels
+            ctx.globalCompositeOperation = 'destination-in'
+            ctx.drawImage(results.segmentationMask, 0, 0, canvas.width, canvas.height)
+
+            // Step 4: Draw blurred background behind person
+            ctx.globalCompositeOperation = 'destination-over'
+            ctx.filter = 'blur(12px)'
+            ctx.drawImage(results.image, 0, 0, canvas.width, canvas.height)
+            ctx.filter = 'none'
+
+            ctx.restore()
+        })
+
+        // Frame loop — exits cleanly if segmentation was closed
+        const processFrame = async () => {
+            if (!segmentationRef.current) return
+            try { await segmentation.send({ image: hiddenVideo }) } catch { return }
+            animFrameRef.current = requestAnimationFrame(processFrame)
+        }
+        processFrame()
+
+        // Capture canvas stream + original audio
+        const canvasStream = canvas.captureStream(30)
+        const audioTrack   = rawStream.getAudioTracks()[0]
+        if (audioTrack) canvasStream.addTrack(audioTrack)
+
+        processedStreamRef.current = canvasStream
+        return canvasStream
+    }, [])
+
+    // Go Live
     const startLive = async () => {
         try {
             const stream = await navigator.mediaDevices.getUserMedia({
@@ -93,10 +180,22 @@ export default function BroadcasterView({ onBack, socket }) {
                 audio: { echoCancellation: true, noiseSuppression: true },
             })
             streamRef.current = stream
-            if (videoRef.current) videoRef.current.srcObject = stream
 
+            if (backgroundMode === 'raw') {
+                if (videoRef.current) videoRef.current.srcObject = stream
+            } else {
+                // blur mode
+                const processedStream = await startSegmentation(stream)
+                processedStreamRef.current = processedStream
+                if (videoRef.current) videoRef.current.srcObject = processedStream
+            }
+
+            // FIX 3: hide overlay immediately once camera is ready
+            setPreviewActive(true)
+
+            const streamToRecord = processedStreamRef.current || stream
             const { data } = await liveStreamApi.startSession(title)
-            startRecording(stream, data.sessionId)
+            startRecording(streamToRecord, data.sessionId)
             socket?.emit('start-live', { sessionId: data.sessionId, title })
             dispatch(liveStarted({ sessionId: data.sessionId }))
         } catch (err) {
@@ -107,8 +206,10 @@ export default function BroadcasterView({ onBack, socket }) {
     // ─── Stop & Save ──────────────────────────────────────────────────────────
     const stopLive = async () => {
         stopRecording()
+        cleanupBackground()
         cleanupStream()
         cleanupPeers()
+        setPreviewActive(false)
         const sid = sessionRef.current
         socket?.emit('stop-live', { sessionId: sid })
         dispatch(liveStopped())
@@ -126,11 +227,15 @@ export default function BroadcasterView({ onBack, socket }) {
 
     // ─── Cancel ───────────────────────────────────────────────────────────────
     const handleCancel = async () => {
-        if (isLive) { await stopLive() }
-        else {
-            stopRecording(); cleanupStream(); cleanupPeers()
-            const sid = sessionRef.current
-            if (sid) { socket?.emit('stop-live', { sessionId: sid }); await liveStreamApi.cancelSession(sid) }
+        stopRecording()
+        cleanupBackground()
+        cleanupStream()
+        cleanupPeers()
+        setPreviewActive(false)
+        const sid = sessionRef.current
+        if (sid) {
+            socket?.emit('stop-live', { sessionId: sid })
+            await liveStreamApi.cancelSession(sid)
         }
         dispatch(broadcasterReset())
     }
@@ -157,12 +262,17 @@ export default function BroadcasterView({ onBack, socket }) {
                     <div className="lg:col-span-2 space-y-4">
                         <div className="bg-black rounded-xl overflow-hidden relative">
                             <video ref={videoRef} autoPlay muted playsInline className="w-full aspect-video bg-black" />
-                            {!isLive && (
+                            {/* FIX 3: overlay tied to previewActive not isLive */}
+                            {!previewActive && (
                                 <div className="absolute inset-0 flex items-center justify-center text-gray-500 pointer-events-none">
                                     <p className="text-lg">Camera preview will appear here</p>
                                 </div>
                             )}
                         </div>
+
+                        {/* Hidden canvas for blur processing */}
+                        <canvas ref={canvasRef} className="hidden" />
+
                         <div className="bg-gray-800 p-4 rounded-xl">
                             <p className="text-gray-300">
                                 <span className="font-bold text-white">Status: </span>
@@ -183,6 +293,28 @@ export default function BroadcasterView({ onBack, socket }) {
                             disabled={isLive}
                             className="w-full px-4 py-2 bg-gray-700 text-white rounded-lg placeholder-gray-400 disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-purple-500"
                         />
+
+                        {/* Background selector — only Raw and Blur, hidden while live */}
+                        {!isLive && (
+                            <div className="space-y-3">
+                                <p className="text-sm font-semibold text-gray-300">Background</p>
+                                <div className="flex gap-2">
+                                    {['raw', 'blur'].map((mode) => (
+                                        <button
+                                            key={mode}
+                                            onClick={() => setBackgroundMode(mode)}
+                                            className={`flex-1 py-1.5 rounded-lg text-sm font-semibold capitalize transition
+                                                ${backgroundMode === mode
+                                                    ? 'bg-purple-600 text-white'
+                                                    : 'bg-gray-700 text-gray-300 hover:bg-gray-600'}`}
+                                        >
+                                            {mode === 'raw' ? 'Raw' : 'Blur'}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
                         {!isLive ? (
                             <button onClick={startLive} className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-lg transition text-lg">
                                 🎥 Go Live
@@ -209,6 +341,7 @@ export default function BroadcasterView({ onBack, socket }) {
                     </div>
                 </div>
 
+                {/* savedVideoUrl only ever set by stopLive, never by handleCancel */}
                 {savedVideoUrl && (
                     <div className="mt-8 bg-gray-800 p-6 rounded-xl">
                         <h2 className="text-2xl font-bold mb-4">✅ Video Saved!</h2>
