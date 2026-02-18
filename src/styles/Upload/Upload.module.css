@@ -266,3 +266,40 @@
     width: 100%;
   }
 }
+
+/* Error Styles */
+.errorMsg {
+  background: #fee;
+  color: #c33;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  font-size: 0.9rem;
+  border-left: 4px solid #c33;
+}
+
+.fieldError {
+  display: block;
+  font-size: 0.85rem;
+  color: #c33;
+  margin-top: 0.5rem;
+}
+
+.inputError {
+  border-color: #c33 !important;
+}
+
+.inputError:focus {
+  border-color: #c33 !important;
+  box-shadow: 0 0 0 3px rgba(204, 51, 51, 0.1);
+}
+
+.dropLabelError {
+  border-color: #c33 !important;
+  background: #fff5f5 !important;
+}
+
+.dropLabelError:hover {
+  border-color: #c33 !important;
+  background: #ffe5e5 !important;
+}
