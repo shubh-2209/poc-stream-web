@@ -125,15 +125,31 @@ export default function BroadcasterView({ onBack, socket }) {
     }
 
     // ─── Cancel ───────────────────────────────────────────────────────────────
-    const handleCancel = async () => {
-        if (isLive) { await stopLive() }
-        else {
-            stopRecording(); cleanupStream(); cleanupPeers()
-            const sid = sessionRef.current
-            if (sid) { socket?.emit('stop-live', { sessionId: sid }); await liveStreamApi.cancelSession(sid) }
+const handleCancel = async () => {
+    // 1. Hamesha recording aur stream cleanup karo
+    stopRecording();
+    cleanupStream();
+    cleanupPeers();
+
+    const sid = sessionRef.current;
+
+    if (sid) {
+        // Sirf cancel API hit karo — end nahi
+        socket?.emit('stop-live', { sessionId: sid });
+
+        try {
+            await liveStreamApi.cancelSession(sid);
+            dispatch(setBroadcasterStatus('Stream cancelled successfully'));
+        } catch (err) {
+            console.error('Cancel API failed:', err);
+            dispatch(setBroadcasterStatus('Cancel failed, but local cleanup done'));
         }
-        dispatch(broadcasterReset())
     }
+
+    // 2. Redux state reset
+    dispatch(broadcasterReset());
+    setSavedVideoUrl(null); // extra safety
+};
 
     // ─── Render ───────────────────────────────────────────────────────────────
     return (
