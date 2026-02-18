@@ -9,6 +9,7 @@ import {
   selectAuthError,
   selectIsAuthenticated,
 } from "../features/auth/authSlice";
+
 import styles from "../styles/Auth/AuthPage.module.css";
 
 const AuthPage = () => {
@@ -26,7 +27,7 @@ const AuthPage = () => {
     password: "",
   });
   const [successMsg, setSuccessMsg] = useState("");
-  const [localErrors, setLocalErrors] = useState({});  
+  const [localErrors, setLocalErrors] = useState({});
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -77,7 +78,7 @@ const AuthPage = () => {
       errors.password = "Password is required";
     } else if (!isLogin) {
       const passwordErrors = [];
-      
+
       if (formData.password.length < 8) {
         passwordErrors.push("at least 8 characters");
       }
@@ -98,7 +99,7 @@ const AuthPage = () => {
         errors.password = `Password must contain: ${passwordErrors.join(", ")}`;
       }
     }
-    
+
     return errors;
   };
 
