@@ -4,12 +4,14 @@ import { BACKEND_URL } from '../features/liveStream/liveStreamApi'
 
 export function useLiveSocket() {
   const [socket, setSocket] = useState(null)
-  const SOCKET_URL =
-  import.meta.env.VITE_SOCKET_URL || "http://localhost:3333";
+  const SOCKET_URL = import.meta.env.VITE_SOCKET_URL;
 
   useEffect(() => {
     const s = io(SOCKET_URL, {
-      transports: ['websocket'],
+      transports: ['polling', 'websocket'],
+      extraHeaders: {
+    'ngrok-skip-browser-warning': 'true',  
+  },
       reconnection: true,
       reconnectionDelay: 1000,
       reconnectionDelayMax: 5000,
