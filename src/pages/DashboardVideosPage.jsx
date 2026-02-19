@@ -22,7 +22,7 @@ const DashboardVideosPage = () => {
     }, [dispatch]);
 
     const handleUploadClick = () => {
-        navigate("/uploadVideo");
+        navigate("/uploadVideoFilter");
     };
 
     // ── Render ──────────────────────────────────────────────────
@@ -33,7 +33,7 @@ const DashboardVideosPage = () => {
             <div className={styles.content}>
                 {/* Header */}
                 <div className={styles.header}>
-                    <h1 className={styles.title}>My Videos</h1>
+                    {/* <h1 className={styles.title}>My Videos</h1> */}
                     <button className={styles.uploadBtn} onClick={handleUploadClick}>
                         📤 Upload Video
                     </button>

@@ -108,15 +108,16 @@ export async function convertVideo(options) {
  */
 export async function downloadVideo(videoId) {
   try {
-    const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3333/api'
+    const baseUrl = import.meta.env.VITE_API_URL
     const token = getAuthToken()
     
     const response = await fetch(`${baseUrl}${BASE_URL}/${videoId}/download`, {
       method: 'GET',
       headers: {
+        'ngrok-skip-browser-warning': 'true',
         ...(token && { 'Authorization': `Bearer ${token}` }),
       },
-      credentials: 'include',
+      // credentials: 'include',
     })
 
     if (!response.ok) {
