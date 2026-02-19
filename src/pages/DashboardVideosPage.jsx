@@ -21,7 +21,7 @@ const DashboardVideosPage = () => {
     const videoRef = useRef(null);
 
     useEffect(() => {
-        dispatch(fetchVideos({ page: 1, limit: 100 }))
+        dispatch(fetchVideos({ page: 1, limit: 100 ,type:'video'}))
             .unwrap()
             .then((res) => {
                 console.log("📦 Overall FetchVideos Response:", res);
