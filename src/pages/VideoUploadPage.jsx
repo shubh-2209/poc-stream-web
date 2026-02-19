@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
+import { useNavigate } from 'react-router-dom'
 import {
   uploadVideoThunk,
   convertVideoThunk,
@@ -32,7 +33,7 @@ import '../features/videoConvert/styles/VideoUploadPage.css'
 
 const VideoUploadPage = () => {
   const dispatch = useDispatch()
-
+  const navigate = useNavigate();
   // Redux state
   const uploadStatus = useSelector(selectUploadStatus)
   const uploadProgress = useSelector(selectUploadProgress)
@@ -81,6 +82,14 @@ const VideoUploadPage = () => {
   // Handlers
   const handleUpload = (file, title) => {
     dispatch(uploadVideoThunk({ file, title }))
+  }
+
+  const handleBack = () => {
+    if (window.history.length > 1) {
+      navigate(-1)
+    } else {
+      navigate('/dashboard')
+    }
   }
 
   const handleConvert = () => {
@@ -161,6 +170,9 @@ const VideoUploadPage = () => {
             <span className="logo-text">VIDFORGE PRO</span>
           </div>
           <div className="header-subtitle">ADVANCED FILTERS</div>
+          <button className="back-button" onClick={handleBack}>
+            ← Back
+          </button>
         </div>
       </header>
 

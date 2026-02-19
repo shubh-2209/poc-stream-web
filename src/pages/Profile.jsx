@@ -16,26 +16,34 @@ const Profile = () => {
   });
   const [loading, setLoading] = useState(true);
 
+  const handleBack = () => {
+    if (window.history.length > 1) {
+      navigate(-1)
+    } else {
+      navigate("/dashboard")
+    }
+  }
+
   useEffect(() => {
     const fetchUserStats = async () => {
       try {
         const response = await api.get("/videos");
         const videos = response.videos || response.data || [];
-        
+
         console.log("Videos data:", videos);
         console.log("Durations:", videos.map(v => ({ title: v.title, duration: v.duration })));
-        
+
         const totalDuration = videos.reduce((sum, v) => {
           const duration = parseFloat(v.duration) || 0;
           return sum + duration;
         }, 0);
-        
+
         setStats({
           totalVideos: videos.length,
           totalViews: videos.reduce((sum, v) => sum + (v.views || 0), 0),
           totalDuration: totalDuration,
         });
-        
+
         console.log("Total Duration:", totalDuration);
       } catch (err) {
         console.error("Failed to fetch stats:", err);
@@ -49,11 +57,11 @@ const Profile = () => {
 
   const formatDuration = (seconds) => {
     if (!seconds || seconds === 0) return "0m";
-    
+
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
     const secs = Math.floor(seconds % 60);
-    
+
     if (hours > 0) {
       return `${hours}h ${minutes}m`;
     } else if (minutes > 0) {
@@ -68,6 +76,13 @@ const Profile = () => {
       <Navbar />
 
       <div className={styles.container}>
+        <button
+          className={styles.backBtn}
+          onClick={handleBack}
+        >
+          ← Back
+        </button>
+
         <div className={styles.profileCard}>
           <div className={styles.profileHeader}>
             <div className={styles.avatarLarge}>
@@ -105,7 +120,7 @@ const Profile = () => {
 
           <div className={styles.detailsSection}>
             <h2 className={styles.sectionTitle}>Profile Details</h2>
-            
+
             <div className={styles.detailRow}>
               <span className={styles.detailLabel}>Full Name:</span>
               <span className={styles.detailValue}>{user?.fullName || "N/A"}</span>
@@ -123,13 +138,13 @@ const Profile = () => {
           </div>
 
           <div className={styles.actions}>
-            <button 
+            <button
               className={styles.primaryBtn}
               onClick={() => navigate("/dashboard")}
             >
               Back to Dashboard
             </button>
-            <button 
+            <button
               className={styles.secondaryBtn}
               onClick={() => navigate("/upload")}
             >

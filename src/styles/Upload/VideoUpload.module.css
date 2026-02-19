@@ -4,6 +4,8 @@
   background: #0a0a0a;
   color: #fff;
   font-family: "DM Mono", "Fira Code", "Courier New", monospace;
+  padding-top: 60px;
+  box-sizing: border-box;
 }
 
 /* ─── Header ────────────────────────────────────────────────── */
@@ -49,6 +51,9 @@
   max-width: 900px;
   margin: 0 auto;
   padding: 48px 24px;
+  padding-top: 1000px;
+  /* 48px original + 60px Navbar */
+  box-sizing: border-box;
 }
 
 /* ─── Hero ──────────────────────────────────────────────────── */
@@ -412,10 +417,21 @@
   text-transform: uppercase;
 }
 
-.filterGroupTitleColor    { color: #e8ff47; }
-.filterGroupTitleEffects  { color: #47ffb2; }
-.filterGroupTitleTransform{ color: #ff8c47; }
-.filterGroupTitleStyle    { color: #c77dff; }
+.filterGroupTitleColor {
+  color: #e8ff47;
+}
+
+.filterGroupTitleEffects {
+  color: #47ffb2;
+}
+
+.filterGroupTitleTransform {
+  color: #ff8c47;
+}
+
+.filterGroupTitleStyle {
+  color: #c77dff;
+}
 
 /* ─── Slider ────────────────────────────────────────────────── */
 .sliderWrapper {
@@ -488,8 +504,13 @@
   flex-shrink: 0;
 }
 
-.toggleTrackOn  { background: #e8ff47; }
-.toggleTrackOff { background: #2a2a2a; }
+.toggleTrackOn {
+  background: #e8ff47;
+}
+
+.toggleTrackOff {
+  background: #2a2a2a;
+}
 
 .toggleThumb {
   width: 18px;
@@ -500,16 +521,28 @@
   transition: left 0.2s ease;
 }
 
-.toggleThumbOn  { background: #000; left: 20px; }
-.toggleThumbOff { background: #666; left: 2px;  }
+.toggleThumbOn {
+  background: #000;
+  left: 20px;
+}
+
+.toggleThumbOff {
+  background: #666;
+  left: 2px;
+}
 
 .toggleText {
   font-size: 13px;
   font-weight: 500;
 }
 
-.toggleTextOn  { color: #fff; }
-.toggleTextOff { color: #888; }
+.toggleTextOn {
+  color: #fff;
+}
+
+.toggleTextOff {
+  color: #888;
+}
 
 /* ─── Error Banner ──────────────────────────────────────────── */
 .errorBanner {
@@ -552,7 +585,9 @@
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .loaderTrack {
@@ -571,8 +606,13 @@
 }
 
 @keyframes slide {
-  0%   { transform: translateX(-100%); }
-  100% { transform: translateX(350%); }
+  0% {
+    transform: translateX(-100%);
+  }
+
+  100% {
+    transform: translateX(350%);
+  }
 }
 
 /* ─── Convert Button ────────────────────────────────────────── */
@@ -615,8 +655,15 @@
 }
 
 @keyframes fadeUp {
-  from { opacity: 0; transform: translateY(16px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .resultHeader {
@@ -680,8 +727,17 @@
   text-transform: uppercase;
 }
 
-.statValue        { color: #fff;    font-size: 20px; font-weight: 700; }
-.statValueAccent  { color: #e8ff47; font-size: 20px; font-weight: 700; }
+.statValue {
+  color: #fff;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.statValueAccent {
+  color: #e8ff47;
+  font-size: 20px;
+  font-weight: 700;
+}
 
 /* ─── Filters Applied ───────────────────────────────────────── */
 .filtersAppliedCard {
@@ -787,16 +843,19 @@
   bottom: 0;
   left: 0;
   right: 0;
-  height: 52px;   /* covers native browser controls bar */
+  height: 52px;
+  /* covers native browser controls bar */
   z-index: 10;
   cursor: pointer;
-  /* background: rgba(255,0,0,0.1); */ /* uncomment to debug */
+  /* background: rgba(255,0,0,0.1); */
+  /* uncomment to debug */
 }
 
 /* ── Hover Thumbnail Preview (YouTube style) ── */
 .hoverPreview {
   position: absolute;
-  bottom: 62px;   /* sits above controls */
+  bottom: 62px;
+  /* sits above controls */
   width: 160px;
   background: #000;
   border: 2px solid #fff;

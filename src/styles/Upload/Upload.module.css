@@ -5,6 +5,31 @@
   flex-direction: column;
 }
 
+.backBtn {
+  position: absolute;
+  top: 75px;
+  /* distance from top */
+  right: 20px;
+  /* distance from right */
+  background-color: #a6a7f7;
+  border: none;
+  color: #333;
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  z-index: 100;
+}
+
+.backBtn:hover {
+  background-color: rgb(233, 191, 253);
+  color: #101010;
+}
+
+
+
 .uploadContainer {
   flex: 1;
   display: flex;
@@ -218,6 +243,7 @@
   from {
     transform: scale(0);
   }
+
   to {
     transform: scale(1);
   }
