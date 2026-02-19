@@ -274,3 +274,32 @@
 .avatarWrapper {
   position: relative;
 }
+
+.uploadBtn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  padding: 0.8rem 2rem;
+  color: white;
+  border-radius: 50px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
+  z-index: 999;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.uploadBtn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 25px rgba(102, 126, 234, 0.6);
+}
+
+@media (max-width: 768px) {
+  .uploadBtn {
+    bottom: 20px;
+    right: 20px;
+    padding: 0.8rem 1.5rem;
+    font-size: 1rem;
+  }
+}
