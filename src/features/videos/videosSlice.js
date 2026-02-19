@@ -11,9 +11,9 @@ const initialState = {
 
 export const fetchVideos = createAsyncThunk(
   "videos/fetchVideos",
-  async ({ page = 1, limit = 1000 }, { rejectWithValue }) => {
+  async ({ page = 1, limit = 1000,type }, { rejectWithValue }) => {
     try {
-      const response = await api.get(`/videos?page=${page}&limit=${limit}`);
+      const response = await api.get(`/videos?page=${page}&limit=${limit}&type=${type}`);
       return {
         videos: response.data || response.videos || [],
         page,
