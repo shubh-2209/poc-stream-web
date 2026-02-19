@@ -8,7 +8,7 @@ export function useLiveSocket() {
   import.meta.env.VITE_SOCKET_URL || "http://localhost:3333";
 
   useEffect(() => {
-    const s = io(SOCKET_URL, {
+    const s = io(BACKEND_URL, {
       transports: ['websocket'],
       reconnection: true,
       reconnectionDelay: 1000,

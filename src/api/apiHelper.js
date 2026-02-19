@@ -1,26 +1,30 @@
 import axios from "axios";
 import { store } from "../redux/store";
 import { logout as logoutAction } from "../features/auth/authSlice";
-
-const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3333/api" ||"https://192.168.0.186:3333/api";
-
+ 
+const BASE_URL = "https://jamila-coky-closer.ngrok-free.dev/api";
+// const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3333/api";
+ 
 const axiosInstance = axios.create({
   baseURL: BASE_URL,
   withCredentials: true,
 });
-
- axiosInstance.interceptors.request.use(
+ 
+axiosInstance.interceptors.request.use(
   (config) => {
     const state = store.getState();
     const token = state?.auth?.token ?? null;
-
-    const isFormData = config.data instanceof FormData;
+ 
     config.headers = config.headers || {};
-
+ 
+    config.headers["ngrok-skip-browser-warning"] = "true"; 
+ 
     if (token) {
       config.headers["Authorization"] = `Bearer ${token}`;
     }
-
+ 
+    const isFormData = config.data instanceof FormData;
+ 
     if (!isFormData && !config.headers["Content-Type"]) {
       config.headers["Content-Type"] = "application/json";
     }
@@ -29,13 +33,13 @@ const axiosInstance = axios.create({
       delete config.headers["Content-Type"];
       delete config.headers["content-type"];
     }
-
+ 
     return config;
   },
   (error) => Promise.reject(error)
 );
-
- axiosInstance.interceptors.response.use(
+ 
+axiosInstance.interceptors.response.use(
   (res) => res,
   (error) => {
     const status = error?.response?.status;

@@ -1,9 +1,9 @@
 import axios from 'axios'
 
-// export const BACKEND_URL = 'https://jamila-coky-closer.ngrok-free.dev'
+export const BACKEND_URL = 'https://jamila-coky-closer.ngrok-free.dev'
 // export const BACKEND_URL = "http://localhost:3333" 
 // export const BACKEND_URL = import.meta.env.VITE_API_URL || "http://localhost:3333/api" ||"https://192.168.0.186:3333/api";
-export const BACKEND_URL = import.meta.env.VITE_API_URL;
+// export const BACKEND_URL = import.meta.env.VITE_API_URL;
 
 export const ICE_SERVERS = [
   { urls: 'stun:stun.l.google.com:19302' },
