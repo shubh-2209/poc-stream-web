@@ -188,7 +188,6 @@ const ReelCard = ({ video, isVisible }) => {
         src={videoUrl}
         loop
         playsInline
-        muted
         onClick={togglePlay}
         onError={handleVideoError}
       />
