@@ -15,7 +15,7 @@
 
 .page-header {
   border-bottom: 1px solid #1a1a1a;
-  padding: 20px 40px;
+  padding: 90px 50px 10px 40px;
 }
 
 .header-content {
@@ -586,7 +586,7 @@
   transition: color 0.2s ease;
 }
 
-.toggle-switch.checked + .toggle-label {
+.toggle-switch.checked+.toggle-label {
   color: #fff;
 }
 
@@ -630,6 +630,7 @@
   0% {
     transform: translateX(-100%);
   }
+
   100% {
     transform: translateX(350%);
   }
@@ -675,6 +676,7 @@
     opacity: 0;
     transform: translateY(16px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -864,6 +866,7 @@
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }

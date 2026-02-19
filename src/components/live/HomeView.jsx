@@ -1,6 +1,24 @@
+import { useNavigate } from 'react-router-dom'
+
 export default function HomeView({ onSelectMode }) {
+    const navigate = useNavigate()
+
+    const handleBack = () => {
+        if (window.history.length > 1) {
+            navigate(-1)
+        } else {
+            navigate('/dashboard') // fallback route
+        }
+    }
     return (
         <div className="min-h-screen bg-gradient-to-br from-purple-700 via-purple-600 to-blue-600 flex items-center justify-center p-4">
+            <button
+                onClick={handleBack}
+                className="absolute top-20 right-5 bg-white/20 backdrop-blur text-white px-4 py-2 rounded-lg text-sm hover:bg-white/30 transition"
+            >
+                ← Back
+            </button>
+
             <div className="bg-white rounded-2xl shadow-2xl p-10 max-w-sm w-full">
                 <div className="text-center mb-8">
                     <div className="text-5xl mb-3">📡</div>

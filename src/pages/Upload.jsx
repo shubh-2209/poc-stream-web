@@ -13,7 +13,7 @@ const Upload = () => {
   const [uploadSuccess, setUploadSuccess] = useState(false);
   const [errors, setErrors] = useState({});
 
-  const MAX_FILE_SIZE = 90 * 1024 * 1024; 
+  const MAX_FILE_SIZE = 90 * 1024 * 1024;
   const ALLOWED_FORMATS = ['video/mp4', 'video/avi', 'video/quicktime', 'video/x-matroska', 'video/webm'];
   const ALLOWED_EXTENSIONS = ['.mp4', '.avi', '.mov', '.mkv', '.webm'];
 
@@ -52,11 +52,19 @@ const Upload = () => {
     return titleErrors;
   };
 
+  const handleBack = () => {
+    if (window.history.length > 1) {
+      navigate(-1)
+    } else {
+      navigate('/dashboard')
+    }
+  }
+
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
       const fileErrors = validateFile(file);
-      
+
       if (Object.keys(fileErrors).length > 0) {
         setErrors(fileErrors);
         setUploadFile(null);
@@ -65,7 +73,7 @@ const Upload = () => {
 
       setErrors({});
       setUploadFile(file);
-      
+
       if (!uploadTitle) {
         setUploadTitle(file.name.replace(/\.[^/.]+$/, ""));
       }
@@ -75,7 +83,7 @@ const Upload = () => {
   const handleTitleChange = (e) => {
     const value = e.target.value;
     setUploadTitle(value);
-    
+
     if (errors.title) {
       setErrors(prev => ({ ...prev, title: '' }));
     }
@@ -83,7 +91,7 @@ const Upload = () => {
 
   const handleUploadSubmit = async (e) => {
     e.preventDefault();
-    
+
     const titleErrors = validateTitle(uploadTitle);
     if (Object.keys(titleErrors).length > 0) {
       setErrors(titleErrors);
@@ -145,15 +153,24 @@ const Upload = () => {
   return (
     <div className={styles.uploadPage}>
       <Navbar />
-      
+
       <div className={styles.uploadContainer}>
+        <button
+          type="button"
+          onClick={handleBack}
+          disabled={uploading}
+          className={styles.backBtn}
+        >
+          ← Back
+        </button>
         <div className={styles.uploadCard}>
+
           <h1>Upload New Reel</h1>
-          
+
           {errors.submit && (
             <div className={styles.errorMsg}>{errors.submit}</div>
           )}
-          
+
           <form onSubmit={handleUploadSubmit}>
             <div className={styles.dropZone}>
               <input

@@ -127,6 +127,7 @@ const AuthPage = () => {
         toast.success("Account created! Please login to continue 🎉");
         setFormData(EMPTY_FORM);
         setTimeout(() => setIsLogin(true), 800);
+        setIsLogin(true);
       }
     }
   };
