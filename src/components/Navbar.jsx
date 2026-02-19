@@ -42,6 +42,16 @@ const Navbar = () => {
           <div className="pr_5">
             <ul>
               <li>
+                <div className="up_btn">
+                      <button 
+                        className={styles.uploadBtn} 
+                        onClick={() => navigate("/uploadVideoFilter")}
+                      >
+                         Filter Video
+                      </button>
+                      </div>
+              </li>
+              <li>
                 <button
                   onClick={handleUploadRedirect}
                 >

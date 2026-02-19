@@ -6,6 +6,7 @@ import VideoUploadPage from "../pages/VideoUploadPage";
 import Upload from "../pages/Upload";
 import Profile from "../pages/Profile";
 import LiveStream from "../pages/LiveStream";
+import VideoUploadFilterPage from "../pages/VideoPreviewFilters.jsx";
 
 function AppRoutes() {
   return (
@@ -17,6 +18,7 @@ function AppRoutes() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/upload" element={<Upload />} />
           <Route path="/uploadVideo" element={<VideoUploadPage />} />
+          <Route path="/uploadVideoFilter" element={<VideoUploadFilterPage />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/liveStream" element={<LiveStream />} />
         </Route>
