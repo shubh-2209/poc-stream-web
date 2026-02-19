@@ -1,6 +1,5 @@
-const BASE_URL = import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:3333'
-
-// Upload video to get thumbnails (XHR for progress tracking)
+const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3333'
+ 
 export function uploadVideoForThumbnails(file, onProgress) {
   return new Promise((resolve, reject) => {
     const form = new FormData()
@@ -29,14 +28,14 @@ export function uploadVideoForThumbnails(file, onProgress) {
     })
 
     xhr.addEventListener('error', () => reject(new Error('Network error')))
-    xhr.open('POST', `${BASE_URL}/api/v1/upload`)
+    xhr.open('POST', `${BASE_URL}/thumbnails/upload`)
     xhr.send(form)
   })
 }
 
 // Get thumbnails for a video by ID
 export async function getThumbnailsApi(videoId) {
-  const res = await fetch(`${BASE_URL}/api/v1/videos/${videoId}/thumbnails`)
+  const res = await fetch(`${BASE_URL}/thumbnails/videos/${videoId}/thumbnails`)
   const json = await res.json()
   if (!res.ok) throw new Error(json.message || 'Failed to fetch thumbnails')
   return json.data

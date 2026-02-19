@@ -1,5 +1,6 @@
 import React from "react";
 import AppRoutes from "./routes/AppRoutes";
+import { Toaster } from 'react-hot-toast'
 
 const App = () => {
   return (
@@ -7,7 +8,7 @@ const App = () => {
       {/* Future Global Components Example */}
       {/* <CommonToast /> */}
       {/* <NotificationHandler /> */}
-
+      <Toaster position="top-right" toastOptions={{ duration: 3000 }} />
       <AppRoutes />
     </div>
   );
