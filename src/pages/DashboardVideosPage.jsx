@@ -1,6 +1,7 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { useRef } from "react";
 import {
     fetchVideos,
     selectVideos,
@@ -16,14 +17,38 @@ const DashboardVideosPage = () => {
     const videos = useSelector(selectVideos);
     const loading = useSelector(selectVideosLoading);
     const error = useSelector(selectVideosError);
+    const [selectedVideo, setSelectedVideo] = useState(null);
+    const videoRef = useRef(null);
 
     useEffect(() => {
-        dispatch(fetchVideos({ page: 1, limit: 100 }));
+        dispatch(fetchVideos({ page: 1, limit: 100 }))
+            .unwrap()
+            .then((res) => {
+                console.log("📦 Overall FetchVideos Response:", res);
+            })
+            .catch((err) => {
+                console.error("❌ FetchVideos Error:", err);
+            });
     }, [dispatch]);
 
     const handleUploadClick = () => {
         navigate("/uploadVideoFilter");
+        navigate("/uploadVideoFilter");
     };
+
+    const handleVideoClick = (video) => {
+        console.log("🖱 Clicked Video Object:", video);
+        setSelectedVideo(video);
+    };
+
+    const handleCloseModal = () => {
+        if (videoRef.current) {
+            videoRef.current.pause();   // video pause
+            videoRef.current.currentTime = 0; // optional reset
+        }
+        setSelectedVideo(null);
+    };
+
 
     // ── Render ──────────────────────────────────────────────────
     return (
@@ -72,23 +97,34 @@ const DashboardVideosPage = () => {
                 {!loading && !error && videos.length > 0 && (
                     <div className={styles.grid}>
                         {videos.map((video, index) => (
-                            <div key={video.id || index} className={styles.videoCard}>
+                            // <div key={video.id || index} className={styles.videoCard}>
+                            <div
+                                key={video.id || index}
+                                className={styles.videoCard}
+                                onClick={() => handleVideoClick(video)}
+                                style={{ cursor: "pointer" }}
+                            >
+
                                 {/* Thumbnail */}
-                                <div className={styles.thumbnail}>
-                                    {video.thumbnailPath || video.posterUrl ? (
-                                        <img
-                                            src={video.thumbnailPath || video.posterUrl}
-                                            alt={video.title || "Video"}
-                                            className={styles.thumbnailImg}
-                                        />
-                                    ) : (
-                                        <div className={styles.thumbnailPlaceholder}>🎬</div>
-                                    )}
-                                    {video.duration && (
-                                        <span className={styles.duration}>
-                                            {formatDuration(video.duration)}
-                                        </span>
-                                    )}
+                                < div className={styles.thumbnail} >
+                                    {
+                                        video.thumbnailPath || video.posterUrl ? (
+                                            <img
+                                                src={video.thumbnailPath || video.posterUrl}
+                                                alt={video.title || "Video"}
+                                                className={styles.thumbnailImg}
+                                            />
+                                        ) : (
+                                            <div className={styles.thumbnailPlaceholder}>🎬</div>
+                                        )
+                                    }
+                                    {
+                                        video.duration && (
+                                            <span className={styles.duration}>
+                                                {formatDuration(video.duration)}
+                                            </span>
+                                        )
+                                    }
                                 </div>
 
                                 {/* Info */}
@@ -113,9 +149,42 @@ const DashboardVideosPage = () => {
                             </div>
                         ))}
                     </div>
-                )}
-            </div>
-        </div>
+                )
+                }
+            </div >
+            {selectedVideo && (
+                <div
+                    className={styles.modalOverlay}
+                    onClick={handleCloseModal}
+                >
+                    <div
+                        className={styles.modalContent}
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <button
+                            className={styles.closeBtn}
+                            onClick={(e) => {
+                                e.stopPropagation();   // 🔥 important
+                                handleCloseModal();
+                            }}
+                        >
+                            ✖
+                        </button>
+
+                        <video
+                            ref={videoRef}
+                            src={
+                                // selectedVideo.cloudinaryStreamingUrl ||
+                                selectedVideo.cloudinaryUrl
+                            }
+                            controls
+                            autoPlay
+                            className={styles.modalVideo}
+                        />
+                    </div>
+                </div>
+            )}
+        </div >
     );
 };
 
