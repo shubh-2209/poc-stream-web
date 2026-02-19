@@ -49,7 +49,14 @@ const Navbar = () => {
             POC Dashboard
           </h2>
         </div>
-
+        <div className="up_btn">
+          <button
+            className={styles.uploadBtn}
+            onClick={() => navigate("/uploadVideoFilter")}
+          >
+            Filter Video
+          </button>
+        </div>
         {/* Reel / Video Toggle */}
         <div className={styles.toggleWrapper}>
           <button

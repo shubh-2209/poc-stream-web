@@ -3,39 +3,44 @@ import { store } from "../redux/store";
 import { logout as logoutAction } from "../features/auth/authSlice";
 
 const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3333/api" ||"https://192.168.0.186:3333/api";
-
+ 
 const axiosInstance = axios.create({
   baseURL: BASE_URL,
   withCredentials: true,
 });
-
- axiosInstance.interceptors.request.use(
+ 
+axiosInstance.interceptors.request.use(
   (config) => {
     const state = store.getState();
     const token = state?.auth?.token ?? null;
-
-    const isFormData = config.data instanceof FormData;
+ 
     config.headers = config.headers || {};
-
+ 
+    config.headers["ngrok-skip-browser-warning"] = "true";
+ 
     if (token) {
       config.headers["Authorization"] = `Bearer ${token}`;
     }
-
+ 
+    const isFormData = config.data instanceof FormData;
+ 
     if (!isFormData && !config.headers["Content-Type"]) {
       config.headers["Content-Type"] = "application/json";
     }
-
+ 
+    // For FormData: let browser set multipart/form-data + boundary automatically
     if (isFormData) {
       delete config.headers["Content-Type"];
       delete config.headers["content-type"];
     }
-
+ 
     return config;
   },
   (error) => Promise.reject(error)
 );
-
- axiosInstance.interceptors.response.use(
+ 
+// Response interceptor (unchanged, good as-is)
+axiosInstance.interceptors.response.use(
   (res) => res,
   (error) => {
     const status = error?.response?.status;
@@ -49,7 +54,7 @@ const axiosInstance = axios.create({
     return Promise.reject(error);
   }
 );
-
+ 
 export const api = {
   get: async (endpoint, config = {}) => {
     const res = await axiosInstance.get(endpoint, config);
@@ -67,4 +72,4 @@ export const api = {
     const res = await axiosInstance.delete(endpoint, config);
     return res.data ?? {};
   },
-};
+}; 

@@ -108,7 +108,6 @@ export async function convertVideo(options) {
  */
 export async function downloadVideo(videoId) {
   try {
-    // Get the full axios instance to access blob response
     const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3333/api'
     const token = getAuthToken()
     
@@ -125,32 +124,60 @@ export async function downloadVideo(videoId) {
       throw new Error(data.error || data.message || 'Download failed')
     }
 
-    // Get filename from Content-Disposition header
-    const contentDisposition = response.headers.get('Content-Disposition')
-    let filename = `video_${videoId}.mp4`
+    // Get extension from custom header
+    const extension = response.headers.get('X-File-Extension') || 'webm'
+    const originalFilename = response.headers.get('X-Original-Filename')
+    
+    console.log('📎 Extension from header:', extension)
+    console.log('📄 Original filename from header:', originalFilename)
 
-    if (contentDisposition) {
-      const filenameMatch = contentDisposition.match(/filename="?(.+?)"?$/i)
-      if (filenameMatch) {
-        filename = filenameMatch[1]
+    // Use custom header filename if available, otherwise extract from Content-Disposition
+    let filename = originalFilename
+    
+    if (!filename) {
+      const contentDisposition = response.headers.get('Content-Disposition')
+      if (contentDisposition) {
+        const matches = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/)
+        if (matches && matches[1]) {
+          filename = matches[1].replace(/['"]/g, '').trim()
+        }
       }
     }
 
-    // Create blob and trigger download
+    // Fallback filename with correct extension
+    if (!filename) {
+      filename = `video_${videoId}.${extension}`
+    }
+
+    console.log('💾 Final filename:', filename)
+
+    // Get blob and create download
+    const contentType = response.headers.get('Content-Type') || `video/${extension}`
     const blob = await response.blob()
-    const url = window.URL.createObjectURL(blob)
+    const typedBlob = new Blob([blob], { type: contentType })
+
+    console.log('📦 Blob size:', typedBlob.size, 'bytes')
+    console.log('📦 Blob type:', typedBlob.type)
+
+    const url = window.URL.createObjectURL(typedBlob)
     const link = document.createElement('a')
     link.href = url
     link.download = filename
+    link.style.display = 'none'
+    
     document.body.appendChild(link)
     link.click()
-    document.body.removeChild(link)
-    window.URL.revokeObjectURL(url)
+    
+    setTimeout(() => {
+      document.body.removeChild(link)
+      window.URL.revokeObjectURL(url)
+      console.log('✅ Download complete')
+    }, 100)
 
-    return { success: true }
+    return { success: true, filename, extension }
   } catch (error) {
-    const message = error?.message || 'Network error during download'
-    throw new Error(message)
+    console.error('❌ Download failed:', error)
+    throw new Error(error?.message || 'Network error during download')
   }
 }
 

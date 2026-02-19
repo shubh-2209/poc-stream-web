@@ -1,0 +1,257 @@
+/* FinalPreview.css */
+
+.final-preview {
+  display: grid;
+  grid-template-columns: 1fr 350px;
+  gap: 30px;
+}
+
+.preview-main {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.preview-main h2 {
+  font-size: 28px;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0;
+}
+
+.preview-main p {
+  font-size: 16px;
+  color: #6b7280;
+  margin: 0;
+}
+
+.final-video-container {
+  position: relative;
+  background: #000;
+  border-radius: 12px;
+  overflow: hidden;
+  aspect-ratio: 16 / 9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.final-video {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.play-button-large {
+  position: absolute;
+  width: 100px;
+  height: 100px;
+  background: rgba(255, 255, 255, 0.9);
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+.play-button-large:hover {
+  background: white;
+  transform: scale(1.12);
+}
+
+.play-button-large svg {
+  width: 44px;
+  height: 44px;
+  color: #6366f1;
+  margin-left: 3px;
+}
+
+.playback-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: #f9fafb;
+  padding: 16px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+
+.timeline-input {
+  width: 100%;
+  height: 6px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: #e5e7eb;
+  border-radius: 3px;
+  outline: none;
+  cursor: pointer;
+}
+
+.timeline-input::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  background: #6366f1;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.4);
+}
+
+.timeline-input::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  background: #6366f1;
+  border-radius: 50%;
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.4);
+}
+
+.time-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.preview-summary {
+  background: #f9fafb;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  padding: 0;
+  overflow: hidden;
+  max-height: 700px;
+  overflow-y: auto;
+}
+
+.preview-summary::-webkit-scrollbar {
+  width: 6px;
+}
+
+.preview-summary::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.preview-summary::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 3px;
+}
+
+.preview-summary h3 {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1f2937;
+  padding: 20px 20px 0;
+  margin: 0;
+}
+
+.summary-section {
+  padding: 20px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.summary-section:last-child {
+  border-bottom: none;
+}
+
+.summary-section h4 {
+  font-size: 13px;
+  font-weight: 700;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0 0 12px 0;
+}
+
+.filter-summary,
+.trim-summary,
+.quality-checks {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.summary-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px;
+  background: white;
+  border-radius: 6px;
+  font-size: 13px;
+}
+
+.summary-item span {
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.summary-item strong {
+  color: #1f2937;
+  font-weight: 700;
+}
+
+.summary-item.highlight {
+  background: rgba(99, 102, 241, 0.1);
+  border: 1px solid #6366f1;
+}
+
+.check-item {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  padding: 10px;
+  background: white;
+  border-radius: 6px;
+  font-size: 13px;
+  color: #374151;
+}
+
+.check-item svg {
+  width: 20px;
+  height: 20px;
+  color: #10b981;
+  flex-shrink: 0;
+}
+
+@media (max-width: 1200px) {
+  .final-preview {
+    grid-template-columns: 1fr;
+  }
+
+  .preview-summary {
+    max-height: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .preview-main h2 {
+    font-size: 22px;
+  }
+
+  .play-button-large {
+    width: 80px;
+    height: 80px;
+  }
+
+  .play-button-large svg {
+    width: 36px;
+    height: 36px;
+  }
+
+  .summary-item {
+    padding: 6px;
+    font-size: 12px;
+  }
+
+  .check-item {
+    padding: 8px;
+    font-size: 12px;
+  }
+}

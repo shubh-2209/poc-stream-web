@@ -1,0 +1,163 @@
+/* VideoEditor.css */
+
+.video-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.editor-layout {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 24px;
+}
+
+.editor-main {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.editor-preview {
+  position: relative;
+  background: #000;
+  border-radius: 12px;
+  overflow: hidden;
+  aspect-ratio: 16 / 9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.editor-video {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.play-overlay {
+  position: absolute;
+  width: 80px;
+  height: 80px;
+  background: rgba(255, 255, 255, 0.9);
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  z-index: 10;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.play-overlay:hover {
+  background: white;
+  transform: scale(1.1);
+}
+
+.play-overlay svg {
+  width: 36px;
+  height: 36px;
+  color: #6366f1;
+  margin-left: 2px;
+}
+
+.editor-mode-tabs {
+  display: flex;
+  gap: 8px;
+  background: #f9fafb;
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+
+.mode-tab {
+  flex: 1;
+  padding: 10px 16px;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  color: #6b7280;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+}
+
+.mode-tab:hover {
+  color: #1f2937;
+  background: rgba(99, 102, 241, 0.05);
+}
+
+.mode-tab.active {
+  background: white;
+  color: #6366f1;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.mode-tab svg {
+  width: 18px;
+  height: 18px;
+}
+
+.editor-sidebar {
+  background: #f9fafb;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  padding: 0;
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+.editor-sidebar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.editor-sidebar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.editor-sidebar::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 3px;
+}
+
+.editor-sidebar::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}
+
+@media (max-width: 1200px) {
+  .editor-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .editor-sidebar {
+    max-height: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .play-overlay {
+    width: 60px;
+    height: 60px;
+  }
+
+  .play-overlay svg {
+    width: 28px;
+    height: 28px;
+  }
+
+  .mode-tab {
+    font-size: 12px;
+    padding: 8px 12px;
+  }
+
+  .editor-mode-tabs {
+    gap: 4px;
+  }
+}
