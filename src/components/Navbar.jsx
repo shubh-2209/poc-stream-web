@@ -21,7 +21,9 @@ const Navbar = () => {
     await dispatch(logoutUser());
     navigate("/auth", { replace: true });
   };
-
+  const handleUploadClick = () => {
+    navigate("/uploadVideo");
+  };
   const handleToggle = (tab) => {
     if (tab === "reels") navigate("/dashboard");
     else navigate("/videos");
@@ -49,14 +51,6 @@ const Navbar = () => {
             POC Dashboard
           </h2>
         </div>
-        <div className="up_btn">
-          <button
-            className={styles.uploadBtn}
-            onClick={() => navigate("/uploadVideoFilter")}
-          >
-            Filter Video
-          </button>
-        </div>
         {/* Reel / Video Toggle */}
         <div className={styles.toggleWrapper}>
           <button
@@ -72,7 +66,13 @@ const Navbar = () => {
             📹 Videos
           </button>
         </div>
-
+        <div className={styles.userSection}>
+          <div className={styles.header}>
+            <button className={styles.uploadBtn} onClick={handleUploadClick}>
+              Video Convertor
+            </button>
+          </div>
+        </div>
         {/* Right actions */}
         <div className={styles.userSection}>
           <button onClick={handleLiveRedirect} className={styles.liveBtn}>

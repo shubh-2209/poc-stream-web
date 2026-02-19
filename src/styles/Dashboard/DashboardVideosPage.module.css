@@ -17,7 +17,7 @@
 .header {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: flex-end;
     margin-bottom: 32px;
 }
 
@@ -37,6 +37,7 @@
     font-weight: 600;
     cursor: pointer;
     transition: background 0.2s;
+    margin-left: 10px;
 }
 
 .uploadBtn:hover {
