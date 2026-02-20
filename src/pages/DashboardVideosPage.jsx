@@ -10,6 +10,20 @@ import {
 import Navbar from "../components/Navbar";
 import styles from "../styles/Dashboard/DashboardVideosPage.module.css";
 
+const getCloudinaryThumb = (video) => {
+    if (!video?.cloudinaryUrl || !video?.cloudinaryPublicId) return null;
+
+    try {
+        const url = new URL(video.cloudinaryUrl);
+        const parts = url.pathname.split("/");
+        const cloudName = parts[1];
+
+        return `https://res.cloudinary.com/${cloudName}/video/upload/so_0,f_jpg,q_auto,w_400,ar_16:9,c_fill/${video.cloudinaryPublicId}.jpg`;
+    } catch {
+        return null;
+    }
+};
+
 const DashboardVideosPage = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
@@ -120,6 +134,7 @@ const DashboardVideosPage = () => {
                             const vt = video.videoThumbnails;
                             const sprite = vt?.sprite ?? video.spriteData ?? video.sprite ?? null;
                             const dur = vt?.duration ?? video.duration;
+                            const thumbUrl = getCloudinaryThumb(video);
 
                             return (
                                 <div
@@ -128,31 +143,12 @@ const DashboardVideosPage = () => {
                                     onClick={() => handleVideoClick(video)}
                                 >
                                     <div className={styles.thumbnail}>
-                                        {sprite ? (
-                                            /*
-                                              Card thumbnail — show FIRST frame only (bgPosition: 0 0)
-
-                                              background-size formula:
-                                                sprite has `columns` thumbs across → scale = columns * 100%
-                                                e.g. 5 columns → background-size: 500% auto
-                                                This makes each thumb fill the container exactly ✅
-
-                                              NO width/height from sprite — container (aspect-ratio 16/9) controls size
-                                              overflow: hidden on .thumbnail clips to card bounds
-                                            */
-                                            <div
-                                                className={styles.thumbnailSprite}
-                                                style={{
-                                                    backgroundImage: `url('${sprite.path}')`,
-                                                    backgroundSize: `${sprite.columns * 100}% auto`,
-                                                    backgroundPosition: "0 0",
-                                                }}
-                                            />
-                                        ) : video.thumbnailPath || video.posterUrl ? (
+                                        {thumbUrl ? (
                                             <img
-                                                src={video.thumbnailPath || video.posterUrl}
+                                                src={thumbUrl}
                                                 alt={video.title || "Video"}
                                                 className={styles.thumbnailImg}
+                                                loading="lazy"
                                             />
                                         ) : (
                                             <div className={styles.thumbnailPlaceholder}>🎬</div>
@@ -245,7 +241,7 @@ const DashboardVideosPage = () => {
                     </div>
                 );
             })()}
-        </div>
+        </div >
     );
 };
 
