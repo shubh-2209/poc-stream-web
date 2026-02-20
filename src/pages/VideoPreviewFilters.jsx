@@ -8,7 +8,7 @@ import StepIndicator from "../features/video-upload/components/StepIndicator"
 import "../features/video-upload/styles/VideoUploadPage.css"
 
 const VideoUploadFilterPage = () => {
-  // ✅ Store Cloudinary URL from backend
+  const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3333/api"
   const [cloudinaryUrl, setCloudinaryUrl] = useState(null)
   
   const [currentStep, setCurrentStep] = useState(1)
@@ -52,14 +52,11 @@ const VideoUploadFilterPage = () => {
     setCloudinaryUrl(null)
     setDuration(0)
 
-    console.log('📤 Starting upload to /api/v1/upload...')
-    console.log('File:', { name: file.name, size: file.size, type: file.type })
-
     const formData = new FormData()
     formData.append('video', file)
 
     console.log('🔄 Fetching /api/v1/upload...')
-    const response = await fetch('http://localhost:3333/api/v1/upload', {
+    const response = await fetch(`${BASE_URL}/v1/upload`, {
       method: 'POST',
       body: formData,
     })
@@ -94,13 +91,6 @@ const VideoUploadFilterPage = () => {
       console.error('   Response was:', responseText)
       throw new Error('Failed to parse response as JSON')
     }
-
-    // ✅ Validate response structure
-    console.log('🔍 Validating response structure...')
-    console.log('   result.success:', result.success)
-    console.log('   result.data:', result.data)
-    console.log('   result.data?.videoUrl:', result.data?.videoUrl)
-    console.log('   result.data?.duration:', result.data?.duration)
 
     if (!result.success) {
       console.error('❌ Response success=false:', result.message)
@@ -227,8 +217,7 @@ const VideoUploadFilterPage = () => {
         })
       }, 300)
 
-      // Make API call
-      const response = await fetch('http://localhost:3333/api/v1/videos/finalize', {
+      const response = await fetch(`${BASE_URL}/v1/videos/finalize`, {
         method: 'POST',
         body: formData,
       })

@@ -9,21 +9,24 @@ const CONNECTION_STATUS = {
 
 const initialState = {
   broadcaster: {
-    title:         'My Live Stream',
-    sessionId:     null,
-    isLive:        false,
-    status:        'Ready to go live',
-    savedVideoUrl: null,
-    viewersCount:  0,
+    title:           'My Live Stream',
+    sessionId:       null,
+    isLive:          false,
+    status:          'Ready to go live',
+    savedVideoUrl:   null,
+    viewersCount:    0,
+    viewerList:      [],    
+    broadcasterInfo: null,  
   },
   viewer: {
-    availableStreams: [],
+    availableStreams:  [],
     watchingStreamId: null,
     broadcasterId:    null,
     liveTitle:        '',
     liveViewers:      0,
     status:           '',
     connectionState:  'new',
+    broadcasterName:   '', 
   },
 }
 
@@ -31,38 +34,61 @@ const liveStreamSlice = createSlice({
   name: 'liveStream',
   initialState,
   reducers: {
+
     // ── Broadcaster ──────────────────────────────────────────────────────────
+
     setBroadcasterTitle(state, { payload }) {
       state.broadcaster.title = payload
     },
+
     liveStarted(state, { payload: { sessionId } }) {
       state.broadcaster.sessionId     = sessionId
       state.broadcaster.isLive        = true
       state.broadcaster.savedVideoUrl = null
+      state.broadcaster.viewerList    = []        
       state.broadcaster.status        = '🔴 Live! Waiting for viewers...'
     },
+
     setBroadcasterStatus(state, { payload }) {
       state.broadcaster.status = payload
     },
+
     setSavedVideoUrl(state, { payload }) {
       state.broadcaster.savedVideoUrl = payload
     },
+
     setViewersCount(state, { payload }) {
       state.broadcaster.viewersCount = payload
     },
-    liveStopped(state) {
-      state.broadcaster.isLive      = false
-      state.broadcaster.sessionId   = null
-      state.broadcaster.viewersCount = 0
+
+    setViewerList(state, { payload }) {
+      state.broadcaster.viewerList = payload  
     },
+
+    setBroadcasterInfo(state, { payload }) {
+      state.broadcaster.broadcasterInfo = payload  
+    },
+
+    liveStopped(state) {
+      state.broadcaster.isLive       = false
+      state.broadcaster.sessionId    = null
+      state.broadcaster.viewersCount = 0
+      state.broadcaster.viewerList   = []  
+    },
+
     broadcasterReset(state) {
-      state.broadcaster = { ...initialState.broadcaster }
+      state.broadcaster = {
+        ...initialState.broadcaster,
+        broadcasterInfo: state.broadcaster.broadcasterInfo,
+      }
     },
 
     // ── Viewer ───────────────────────────────────────────────────────────────
+
     setAvailableStreams(state, { payload }) {
       state.viewer.availableStreams = payload
     },
+
     streamJoined(state, { payload }) {
       state.viewer.watchingStreamId = payload.sessionId
       state.viewer.broadcasterId    = payload.broadcasterId
@@ -70,17 +96,22 @@ const liveStreamSlice = createSlice({
       state.viewer.liveViewers      = payload.viewersCount
       state.viewer.status           = '⏳ Joining stream...'
       state.viewer.connectionState  = 'connecting'
+      state.viewer.broadcasterName  = payload.broadcasterName
     },
+
     setConnectionState(state, { payload }) {
       state.viewer.connectionState = payload
       if (CONNECTION_STATUS[payload]) state.viewer.status = CONNECTION_STATUS[payload]
     },
+
     setViewerStatus(state, { payload }) {
       state.viewer.status = payload
     },
+
     setLiveViewers(state, { payload }) {
       state.viewer.liveViewers = payload
     },
+
     viewerReset(state) {
       state.viewer = { ...initialState.viewer }
     },
@@ -88,13 +119,31 @@ const liveStreamSlice = createSlice({
 })
 
 export const {
-  setBroadcasterTitle, liveStarted, setBroadcasterStatus,
-  setSavedVideoUrl, setViewersCount, liveStopped, broadcasterReset,
-  setAvailableStreams, streamJoined, setConnectionState,
-  setViewerStatus, setLiveViewers, viewerReset,
+  // Broadcaster
+  setBroadcasterTitle,
+  liveStarted,
+  setBroadcasterStatus,
+  setSavedVideoUrl,
+  setViewersCount,
+  setViewerList,        
+  setBroadcasterInfo,   
+  liveStopped,
+  broadcasterReset,
+  // Viewer
+  setAvailableStreams,
+  streamJoined,
+  setConnectionState,
+  setViewerStatus,
+  setLiveViewers,
+  viewerReset,
 } = liveStreamSlice.actions
 
+// Selectors
 export const selectBroadcaster = (state) => state.liveStream.broadcaster
 export const selectViewer      = (state) => state.liveStream.viewer
+
+// NEW — Specific selectors for convenience
+export const selectViewerList      = (state) => state.liveStream.broadcaster.viewerList
+export const selectBroadcasterInfo = (state) => state.liveStream.broadcaster.broadcasterInfo
 
 export default liveStreamSlice.reducer

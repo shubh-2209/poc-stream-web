@@ -7,7 +7,7 @@ export default function HomeView({ onSelectMode }) {
         if (window.history.length > 1) {
             navigate(-1)
         } else {
-            navigate('/dashboard') // fallback route
+            navigate('/dashboard') 
         }
     }
     return (
