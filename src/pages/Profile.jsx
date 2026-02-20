@@ -131,10 +131,10 @@ const Profile = () => {
               <span className={styles.detailValue}>{user?.email || "N/A"}</span>
             </div>
 
-            <div className={styles.detailRow}>
+            {/* <div className={styles.detailRow}>
               <span className={styles.detailLabel}>User ID:</span>
               <span className={styles.detailValue}>{user?.id || "N/A"}</span>
-            </div>
+            </div> */}
           </div>
 
           <div className={styles.actions}>
@@ -144,12 +144,12 @@ const Profile = () => {
             >
               Back to Dashboard
             </button>
-            <button
+            {/* <button
               className={styles.secondaryBtn}
               onClick={() => navigate("/upload")}
             >
               Upload New Video
-            </button>
+            </button> */}
           </div>
         </div>
       </div>
