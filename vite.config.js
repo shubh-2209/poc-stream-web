@@ -1,45 +1,16 @@
-// import { defineConfig } from 'vite'
-// import react from '@vitejs/plugin-react'
-// import tailwindcss from '@tailwindcss/vite'
-// // https://vite.dev/config/
-// export default defineConfig({
-//   plugins: [react(),tailwindcss(),],
-// })
+import { defineConfig } from "vite"
+import react from "@vitejs/plugin-react"
+import tailwindcss from "@tailwindcss/vite"
+import mkcert from "vite-plugin-mkcert"
 
-import { defineConfig } from 'vite'
- 
-import react from '@vitejs/plugin-react'
- 
-import tailwindcss from '@tailwindcss/vite'
- 
-import mkcert from 'vite-plugin-mkcert'
- 
-export default defineConfig({
- 
+export default defineConfig(({ mode }) => ({
   plugins: [
- 
     react(),
- 
     tailwindcss(),
- 
-    mkcert()
- 
-  ],
- 
+    mode === "development" && mkcert(),
+  ].filter(Boolean),
+
   server: {
- 
-    host: true 
- 
-  }
- 
-})
- 
- 
-//export default defineConfig({   server: {     https: false,  // ← remove SSL from Vite     host: "0.0.0.0",     port: 5173,   } })
-// import { defineConfig } from 'vite'
-// import mkcert from 'vite-plugin-mkcert'
-// export default defineConfig({
-//   plugins: [mkcert()],
-//   server: {
-//     https: true  }
-// })
+    host: true,
+  },
+}))
