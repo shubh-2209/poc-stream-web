@@ -1,55 +1,41 @@
-/* src/styles/Dashboard/DashboardVideosPage.module.css */
-
-.page {
+.dashboard {
   min-height: 100vh;
-  background: #0f0f0f;
-  color: #fff;
-}
-
-.content {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 90px 24px 60px;
-}
-
-.header {
+  background: #000;
   display: flex;
-  justify-content: flex-end;
-  margin-bottom: 32px;
+  flex-direction: column;
 }
 
-.uploadBtn {
-  background: #e50914;
-  color: #fff;
-  border: none;
-  padding: 10px 22px;
-  border-radius: 8px;
-  font-size: 0.9rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.2s;
+.reelsContainer {
+  flex: 1;
+  height: 100vh;
+  overflow-y: scroll;
+  scroll-snap-type: y mandatory;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  position: relative;
 }
 
-.uploadBtn:hover {
-  background: #b0060f;
+.reelsContainer::-webkit-scrollbar {
+  display: none;
 }
 
-.stateBox {
+.loader {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 14px;
-  padding: 80px 20px;
-  color: #888;
+  justify-content: center;
+  height: 100vh;
+  color: white;
+  gap: 1rem;
 }
 
 .spinner {
-  width: 40px;
-  height: 40px;
-  border: 3px solid #2e2e2e;
-  border-top-color: #e50914;
+  width: 50px;
+  height: 50px;
+  border: 4px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
   border-radius: 50%;
-  animation: spin 0.75s linear infinite;
+  animation: spin 1s linear infinite;
 }
 
 @keyframes spin {
@@ -58,261 +44,65 @@
   }
 }
 
-.errorText {
-  color: #e50914;
-}
-
-.emptyState {
+.error {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 12px;
-  padding: 100px 20px;
+  justify-content: center;
+  height: 100vh;
+  color: #ff6b6b;
+  font-size: 1.2rem;
+  padding: 2rem;
   text-align: center;
 }
 
-.emptyIcon {
-  font-size: 4rem;
-  margin-bottom: 8px;
-}
-
-.emptyTitle {
-  font-size: 1.5rem;
-  font-weight: 700;
-}
-
-.emptySubtitle {
-  font-size: 0.95rem;
-  color: #888;
-  margin-bottom: 16px;
-}
-
-/* ── Grid ─────────────────────────────────────────────────── */
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 20px;
-}
-
-.videoCard {
-  background: #1a1a1a;
-  border-radius: 12px;
-  overflow: hidden;
-  cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
-}
-
-.videoCard:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.55);
-}
-
-.thumbnail {
-  position: relative;
-  width: 100%;
-  aspect-ratio: 16/9;
-  background: #222;
-  overflow: hidden;
-}
-
-.thumbnailImg {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
-.thumbnailPlaceholder {
-  width: 100%;
-  height: 100%;
+.endMessage {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 2.5rem;
+  height: 50vh;
+  color: white;
+  font-size: 1.2rem;
+  text-align: center;
 }
 
-.duration {
-  position: absolute;
-  bottom: 6px;
-  right: 8px;
-  background: rgba(0, 0, 0, 0.78);
-  color: #fff;
-  font-size: 0.72rem;
-  font-weight: 600;
-  padding: 2px 7px;
-  border-radius: 4px;
-}
-
-.videoInfo {
-  padding: 12px 14px 14px;
-}
-
-.videoTitle {
-  font-size: 0.88rem;
-  font-weight: 600;
-  color: #fff;
-  margin: 0 0 8px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.videoMeta {
+.empty {
   display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 1.2rem;
+  text-align: center;
 }
 
-.badge {
-  font-size: 0.68rem;
-  padding: 2px 8px;
-  border-radius: 20px;
-  background: #2e2e2e;
-  color: #999;
-  font-weight: 500;
-}
-
-.badgeReady {
-  background: rgba(34, 197, 94, 0.15);
-  color: #22c55e;
-}
-
-.badgePending {
-  background: rgba(234, 179, 8, 0.15);
-  color: #eab308;
-}
-
-.badgeSprite {
-  background: rgba(139, 92, 246, 0.15);
-  color: #a78bfa;
-}
-
-/* ── Modal ────────────────────────────────────────────────── */
-.modalOverlay {
+.uploadBtn {
   position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.9);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  padding: 20px;
-}
-
-.modalContent {
-  background: #1a1a1a;
-  border-radius: 14px;
-  padding: 20px;
-  width: 100%;
-  max-width: 900px;
-  position: relative;
-  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.8);
-}
-
-.closeBtn {
-  position: absolute;
-  top: 12px;
-  right: 14px;
-  background: rgba(255, 255, 255, 0.1);
+  bottom: 30px;
+  right: 30px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
   border: none;
-  color: #fff;
-  font-size: 0.95rem;
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
+  padding: 1rem 2rem;
+  border-radius: 50px;
+  font-size: 1.1rem;
+  font-weight: 600;
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background 0.2s;
-  z-index: 10;
+  box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
+  z-index: 999;
+  transition: all 0.3s ease;
+  white-space: nowrap;
 }
 
-.closeBtn:hover {
-  background: rgba(255, 255, 255, 0.22);
+.uploadBtn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 25px rgba(102, 126, 234, 0.6);
 }
 
-/* ── Video Wrapper ────────────────────────────────────────── */
-.videoWrapper {
-  position: relative;
-  line-height: 0;
-  background: #000;
-  border-radius: 6px;
-  overflow: hidden;
-}
-
-/* Fullscreen — wrapper fills screen */
-.videoWrapper:fullscreen,
-.videoWrapper:-webkit-full-screen,
-.videoWrapper:-moz-full-screen {
-  width: 100vw !important;
-  height: 100vh !important;
-  border-radius: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.modalVideo {
-  width: 100%;
-  height: auto;
-  display: block;
-  background: #000;
-}
-
-.videoWrapper:fullscreen .modalVideo,
-.videoWrapper:-webkit-full-screen .modalVideo,
-.videoWrapper:-moz-full-screen .modalVideo {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-}
-
-/* ── Custom Fullscreen Button ─────────────────────────────── */
-.fsBtn {
-  position: absolute;
-  bottom: 10px;
-  right: 10px;
-  z-index: 50;
-  background: rgba(0, 0, 0, 0.6);
-  border: none;
-  color: #fff;
-  width: 34px;
-  height: 34px;
-  border-radius: 6px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background 0.15s, opacity 0.15s;
-  opacity: 0;
-}
-
-.videoWrapper:hover .fsBtn {
-  opacity: 1;
-}
-
-.fsBtn:hover {
-  background: rgba(0, 0, 0, 0.85);
-}
-
-.videoWrapper:fullscreen .fsBtn,
-.videoWrapper:-webkit-full-screen .fsBtn {
-  opacity: 1;
-  bottom: 20px;
-  right: 20px;
-}
-
-/* ── Hover Thumbnail — NO time label ─────────────────────── */
-.hoverThumbnail {
-  position: absolute;
-  bottom: 54px;
-  left: 0;
-  background-color: #000;
-  border: 2px solid #fff;
-  border-radius: 4px;
-  z-index: 100;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
-  pointer-events: none;
-  background-repeat: no-repeat;
+@media (max-width: 768px) {
+  .uploadBtn {
+    bottom: 20px;
+    right: 20px;
+    padding: 0.8rem 1.5rem;
+    font-size: 1rem;
+  }
 }
