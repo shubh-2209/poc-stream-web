@@ -1,4 +1,4 @@
-/* src/styles/Dashboard/VideosPage.module.css */
+/* src/styles/Dashboard/DashboardVideosPage.module.css */
 
 .page {
     min-height: 100vh;
@@ -12,19 +12,10 @@
     padding: 90px 24px 40px;
 }
 
-/* ── Header ─────────────────────────────────────── */
-
 .header {
     display: flex;
-    align-items: center;
     justify-content: flex-end;
     margin-bottom: 32px;
-}
-
-.title {
-    font-size: 1.75rem;
-    font-weight: 700;
-    color: #fff;
 }
 
 .uploadBtn {
@@ -36,15 +27,13 @@
     font-size: 0.9rem;
     font-weight: 600;
     cursor: pointer;
-    transition: background 0.2s;
-    margin-left: 10px;
+    transition: all 0.2s ease;
 }
 
 .uploadBtn:hover {
     background: #b0060f;
+    transform: translateY(-1px);
 }
-
-/* ── Loading / Error state ──────────────────────── */
 
 .stateBox {
     display: flex;
@@ -72,10 +61,7 @@
 
 .errorText {
     color: #e50914;
-    font-size: 1rem;
 }
-
-/* ── Empty State ────────────────────────────────── */
 
 .emptyState {
     display: flex;
@@ -88,13 +74,11 @@
 
 .emptyIcon {
     font-size: 4rem;
-    margin-bottom: 8px;
 }
 
 .emptyTitle {
     font-size: 1.4rem;
     font-weight: 600;
-    color: #fff;
 }
 
 .emptySubtitle {
@@ -103,41 +87,74 @@
     margin-bottom: 16px;
 }
 
-/* ── Grid ───────────────────────────────────────── */
-
+/* ── Grid ─────────────────────────────────────────────────── */
 .grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
     gap: 20px;
 }
 
-/* ── Video Card ─────────────────────────────────── */
-
+/* ── Video Card ───────────────────────────────────────────── */
 .videoCard {
     background: #1a1a1a;
     border-radius: 12px;
     overflow: hidden;
-    transition: transform 0.2s, box-shadow 0.2s;
     cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .videoCard:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+    transform: translateY(-4px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
 }
 
+/* ── Thumbnail container ──────────────────────────────────── */
 .thumbnail {
     position: relative;
     width: 100%;
     aspect-ratio: 16 / 9;
-    background: #2a2a2a;
+    background: #1f1f1f;
     overflow: hidden;
+    /* ← clips sprite to card size */
+    border-radius: 12px 12px 0 0;
 }
 
+/*
+  Card thumbnail — shows FIRST frame of sprite (backgroundPosition: 0 0)
+  
+  KEY FIXES:
+  1. NO background-size: cover — that overrides inline spriteWidth/spriteHeight
+  2. width/height 100% fills container, NOT sprite dimensions
+  3. Sprite is scaled to fit 16:9 card using background-size
+     formula: spriteWidth/thumbWidth * 100% = scale factor
+     e.g. 5 columns → scale = 500%  (each thumb = 20% of sprite width)
+*/
+.thumbnailSprite {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    background-repeat: no-repeat;
+    background-position: 0 0;
+    /* background-image and background-size set inline */
+    transition: transform 0.3s ease;
+}
+
+.videoCard:hover .thumbnailSprite {
+    transform: scale(1.05);
+}
+
+/* Regular img thumbnail (when no sprite) */
 .thumbnailImg {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    display: block;
+    transition: transform 0.3s ease;
+}
+
+.videoCard:hover .thumbnailImg {
+    transform: scale(1.05);
 }
 
 .thumbnailPlaceholder {
@@ -152,15 +169,17 @@
 
 .duration {
     position: absolute;
-    bottom: 6px;
+    bottom: 8px;
     right: 8px;
     background: rgba(0, 0, 0, 0.75);
     color: #fff;
     font-size: 0.75rem;
-    padding: 2px 6px;
+    padding: 3px 7px;
     border-radius: 4px;
+    font-weight: 500;
 }
 
+/* ── Video Info ───────────────────────────────────────────── */
 .videoInfo {
     padding: 12px 14px 14px;
 }
@@ -168,7 +187,6 @@
 .videoTitle {
     font-size: 0.9rem;
     font-weight: 600;
-    color: #fff;
     margin-bottom: 8px;
     white-space: nowrap;
     overflow: hidden;
@@ -200,10 +218,16 @@
     color: #eab308;
 }
 
+.badgeSprite {
+    background: rgba(59, 130, 246, 0.15);
+    color: #3b82f6;
+}
+
+/* ── Modal ────────────────────────────────────────────────── */
 .modalOverlay {
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.8);
+    background: rgba(0, 0, 0, 0.85);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -212,84 +236,110 @@
 
 .modalContent {
     position: relative;
-    width: 300px;
-    /* portrait friendly width */
-    height: 500px;
-    /* portrait friendly height */
+    width: 320px;
+    height: 520px;
     background: #000;
     border-radius: 12px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
     overflow: hidden;
 }
 
+/* ── Video Wrapper ────────────────────────────────────────── */
 .videoWrapper {
     position: relative;
     width: 100%;
     height: 100%;
+    background: #000;
+}
+
+/* Fullscreen */
+.videoWrapper:fullscreen,
+.videoWrapper:-webkit-full-screen,
+.videoWrapper:-moz-full-screen {
+    width: 100vw !important;
+    height: 100vh !important;
+    border-radius: 0;
     display: flex;
-    justify-content: center;
     align-items: center;
+    justify-content: center;
 }
 
 .modalVideo {
     width: 100%;
     height: 100%;
     object-fit: contain;
-    /* maintain original video ratio */
-    border-radius: 10px;
+    display: block;
+}
+
+.videoWrapper:fullscreen .modalVideo,
+.videoWrapper:-webkit-full-screen .modalVideo {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
 }
 
 .closeBtn {
     position: absolute;
-    top: 8px;
-    right: 10px;
-    background: rgba(19, 1, 1, 0.8);
+    top: 10px;
+    right: 12px;
+    background: rgba(0, 0, 0, 0.7);
     color: white;
     border: none;
-    font-size: 18px;
+    font-size: 16px;
     padding: 6px 10px;
     border-radius: 50%;
     cursor: pointer;
     z-index: 10;
 }
 
+/* ── Custom Fullscreen Button ─────────────────────────────── */
+.fsBtn {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    z-index: 50;
+    background: rgba(0, 0, 0, 0.6);
+    border: none;
+    color: #fff;
+    width: 34px;
+    height: 34px;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s, opacity 0.15s;
+    opacity: 0;
+}
+
+.videoWrapper:hover .fsBtn {
+    opacity: 1;
+}
+
+.fsBtn:hover {
+    background: rgba(0, 0, 0, 0.85);
+}
+
+.videoWrapper:fullscreen .fsBtn {
+    opacity: 1;
+    bottom: 20px;
+    right: 20px;
+}
+
+/* ── Hover Thumbnail ──────────────────────────────────────── */
 .hoverThumbnail {
     position: absolute;
-    bottom: 60px;
-    /* above video controls */
+    bottom: 70px;
+    left: 0;
     pointer-events: none;
     border: 2px solid #fff;
-    border-radius: 4px;
+    border-radius: 6px;
     background-color: #000;
     background-repeat: no-repeat;
     z-index: 9999;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.6);
 }
 
-/* Fullscreen support - when videoWrapper goes fullscreen */
-.videoWrapper:fullscreen,
-.videoWrapper:-webkit-full-screen,
-.videoWrapper:-moz-full-screen,
-.videoWrapper:-ms-fullscreen {
-    background: #000;
-}
-
-.videoWrapper:fullscreen .hoverThumbnail,
-.videoWrapper:-webkit-full-screen .hoverThumbnail,
-.videoWrapper:-moz-full-screen .hoverThumbnail,
-.videoWrapper:-ms-fullscreen .hoverThumbnail {
-    position: fixed;
-    z-index: 2147483647;
-    bottom: 80px;
-}
-
-.videoWrapper:fullscreen .modalVideo,
-.videoWrapper:-webkit-full-screen .modalVideo,
-.videoWrapper:-moz-full-screen .modalVideo,
-.videoWrapper:-ms-fullscreen .modalVideo {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
+img {
+    user-select: none;
+    -webkit-user-drag: none;
 }
