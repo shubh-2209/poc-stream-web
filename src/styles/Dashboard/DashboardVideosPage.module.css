@@ -1,0 +1,247 @@
+/* src/styles/Dashboard/VideosPage.module.css */
+
+.page {
+    min-height: 100vh;
+    background: #0f0f0f;
+    color: #fff;
+}
+
+.content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 90px 24px 40px;
+}
+
+/* ── Header ─────────────────────────────────────── */
+
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    margin-bottom: 32px;
+}
+
+.title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #fff;
+}
+
+.uploadBtn {
+    background: #e50914;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+    margin-left: 10px;
+}
+
+.uploadBtn:hover {
+    background: #b0060f;
+}
+
+/* ── Loading / Error state ──────────────────────── */
+
+.stateBox {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: 80px 20px;
+    color: #aaa;
+}
+
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid #333;
+    border-top-color: #e50914;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.errorText {
+    color: #e50914;
+    font-size: 1rem;
+}
+
+/* ── Empty State ────────────────────────────────── */
+
+.emptyState {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: 100px 20px;
+    text-align: center;
+}
+
+.emptyIcon {
+    font-size: 4rem;
+    margin-bottom: 8px;
+}
+
+.emptyTitle {
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: #fff;
+}
+
+.emptySubtitle {
+    font-size: 0.95rem;
+    color: #888;
+    margin-bottom: 16px;
+}
+
+/* ── Grid ───────────────────────────────────────── */
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 20px;
+}
+
+/* ── Video Card ─────────────────────────────────── */
+
+.videoCard {
+    background: #1a1a1a;
+    border-radius: 12px;
+    overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: pointer;
+}
+
+.videoCard:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+
+.thumbnail {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background: #2a2a2a;
+    overflow: hidden;
+}
+
+.thumbnailImg {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.thumbnailPlaceholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5rem;
+    background: #222;
+}
+
+.duration {
+    position: absolute;
+    bottom: 6px;
+    right: 8px;
+    background: rgba(0, 0, 0, 0.75);
+    color: #fff;
+    font-size: 0.75rem;
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+.videoInfo {
+    padding: 12px 14px 14px;
+}
+
+.videoTitle {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 8px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.videoMeta {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.badge {
+    font-size: 0.7rem;
+    padding: 2px 8px;
+    border-radius: 20px;
+    background: #2e2e2e;
+    color: #aaa;
+    font-weight: 500;
+}
+
+.badgeReady {
+    background: rgba(34, 197, 94, 0.15);
+    color: #22c55e;
+}
+
+.badgePending {
+    background: rgba(234, 179, 8, 0.15);
+    color: #eab308;
+}
+
+.modalOverlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modalContent {
+    position: relative;
+    width: 300px;
+    /* portrait friendly width */
+    height: 500px;
+    /* portrait friendly height */
+    background: #000;
+    border-radius: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+.modalVideo {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    /* maintain original video ratio */
+    border-radius: 10px;
+}
+
+.closeBtn {
+    position: absolute;
+    top: 8px;
+    right: 10px;
+    background: rgba(255, 0, 0, 0.8);
+    color: white;
+    border: none;
+    font-size: 18px;
+    padding: 6px 10px;
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 10;
+}
