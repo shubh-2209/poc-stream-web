@@ -29,7 +29,6 @@ const DashboardVideosPage = () => {
         dispatch(fetchVideos({ page: 1, limit: 100, type: "video" }));
     }, [dispatch]);
 
-    // Track fullscreen for icon toggle
     useEffect(() => {
         const onFSChange = () => setIsFullscreen(!!document.fullscreenElement);
         document.addEventListener("fullscreenchange", onFSChange);
@@ -55,13 +54,11 @@ const DashboardVideosPage = () => {
         setHoverTime(null);
     };
 
-    // ── Hover thumbnail ──────────────────────────────────────────
-    // No bottom-area check — show thumbnail anywhere on video hover
-    // This is simpler and matches what was working before
     const handleHoverThumbnail = (e) => {
-        const sprite = selectedVideo?.spriteData ?? selectedVideo?.sprite ?? null;
-        const interval = selectedVideo?.spriteInterval ?? selectedVideo?.interval ?? 1;
-        const duration = selectedVideo?.duration;
+        const vt = selectedVideo?.videoThumbnails;
+        const sprite = vt?.sprite ?? selectedVideo?.spriteData ?? selectedVideo?.sprite ?? null;
+        const interval = vt?.interval ?? selectedVideo?.spriteInterval ?? selectedVideo?.interval ?? 1;
+        const duration = vt?.duration ?? selectedVideo?.duration;
 
         if (!sprite || !duration || !videoRef.current) return;
 
@@ -79,11 +76,7 @@ const DashboardVideosPage = () => {
         if (hoverThumbRef.current) {
             hoverThumbRef.current.style.backgroundPosition =
                 `-${col * sprite.thumbWidth}px -${row * sprite.thumbHeight}px`;
-
-            const left = Math.max(
-                0,
-                Math.min(mouseX - sprite.thumbWidth / 2, rect.width - sprite.thumbWidth)
-            );
+            const left = Math.max(0, Math.min(mouseX - sprite.thumbWidth / 2, rect.width - sprite.thumbWidth));
             hoverThumbRef.current.style.left = `${left}px`;
         }
     };
@@ -91,8 +84,8 @@ const DashboardVideosPage = () => {
     return (
         <div className={styles.page}>
             <Navbar />
-
             <div className={styles.content}>
+
                 <div className={styles.header}>
                     <button className={styles.uploadBtn} onClick={() => navigate("/uploadVideoFilter")}>
                         📤 Upload Video
@@ -105,13 +98,11 @@ const DashboardVideosPage = () => {
                         <p>Loading videos...</p>
                     </div>
                 )}
-
                 {!loading && error && (
                     <div className={styles.stateBox}>
                         <p className={styles.errorText}>❌ {error}</p>
                     </div>
                 )}
-
                 {!loading && !error && videos.length === 0 && (
                     <div className={styles.emptyState}>
                         <div className={styles.emptyIcon}>📭</div>
@@ -126,7 +117,10 @@ const DashboardVideosPage = () => {
                 {!loading && !error && videos.length > 0 && (
                     <div className={styles.grid}>
                         {videos.map((video, index) => {
-                            const sprite = video.spriteData ?? video.sprite ?? null;
+                            const vt = video.videoThumbnails;
+                            const sprite = vt?.sprite ?? video.spriteData ?? video.sprite ?? null;
+                            const dur = vt?.duration ?? video.duration;
+
                             return (
                                 <div
                                     key={video.id || index}
@@ -134,9 +128,29 @@ const DashboardVideosPage = () => {
                                     onClick={() => handleVideoClick(video)}
                                 >
                                     <div className={styles.thumbnail}>
-                                        {video.cloudinaryPublicId ? (
+                                        {sprite ? (
+                                            /*
+                                              Card thumbnail — show FIRST frame only (bgPosition: 0 0)
+
+                                              background-size formula:
+                                                sprite has `columns` thumbs across → scale = columns * 100%
+                                                e.g. 5 columns → background-size: 500% auto
+                                                This makes each thumb fill the container exactly ✅
+
+                                              NO width/height from sprite — container (aspect-ratio 16/9) controls size
+                                              overflow: hidden on .thumbnail clips to card bounds
+                                            */
+                                            <div
+                                                className={styles.thumbnailSprite}
+                                                style={{
+                                                    backgroundImage: `url('${sprite.path}')`,
+                                                    backgroundSize: `${sprite.columns * 100}% auto`,
+                                                    backgroundPosition: "0 0",
+                                                }}
+                                            />
+                                        ) : video.thumbnailPath || video.posterUrl ? (
                                             <img
-                                                src={`https://res.cloudinary.com/dthij9ek2/video/upload/so_0,f_auto,q_auto/${video.cloudinaryPublicId}.jpg`}
+                                                src={video.thumbnailPath || video.posterUrl}
                                                 alt={video.title || "Video"}
                                                 className={styles.thumbnailImg}
                                             />
@@ -144,10 +158,8 @@ const DashboardVideosPage = () => {
                                             <div className={styles.thumbnailPlaceholder}>🎬</div>
                                         )}
 
-                                        {video.duration && (
-                                            <span className={styles.duration}>
-                                                {formatDuration(video.duration)}
-                                            </span>
+                                        {dur && (
+                                            <span className={styles.duration}>{formatDuration(dur)}</span>
                                         )}
                                     </div>
 
@@ -175,7 +187,9 @@ const DashboardVideosPage = () => {
             </div>
 
             {selectedVideo && (() => {
-                const sprite = selectedVideo.spriteData ?? selectedVideo.sprite ?? null;
+                const vt = selectedVideo.videoThumbnails;
+                const sprite = vt?.sprite ?? selectedVideo.spriteData ?? selectedVideo.sprite ?? null;
+
                 return (
                     <div className={styles.modalOverlay} onClick={handleCloseModal}>
                         <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
@@ -200,11 +214,7 @@ const DashboardVideosPage = () => {
                                 />
 
                                 {/* Custom fullscreen button */}
-                                <button
-                                    className={styles.fsBtn}
-                                    onClick={toggleFullscreen}
-                                    title={isFullscreen ? "Exit fullscreen" : "Fullscreen"}
-                                >
+                                <button className={styles.fsBtn} onClick={toggleFullscreen}>
                                     {isFullscreen ? (
                                         <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
                                             <path d="M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z" />
@@ -216,7 +226,7 @@ const DashboardVideosPage = () => {
                                     )}
                                 </button>
 
-                                {/* Hover thumbnail — NO time label */}
+                                {/* Hover thumbnail */}
                                 {sprite && hoverTime !== null && (
                                     <div
                                         ref={hoverThumbRef}
