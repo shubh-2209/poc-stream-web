@@ -4,13 +4,16 @@ import videoThumbnailReducer from "../features/videoThumbnail/videoThumbnailSlic
 import videosReducer from "../features/videos/videosSlice";
 import liveStreamReducer from "../features/liveStream/liveStreamSlice";
 import videoConvertReducer from "../features/videoConvert/videoConvertSlice";
+import chatReducer from "../features/chat/chatSlice";
+
 
 const rootReducer = combineReducers({
   auth: authReducer,
   videoThumbnail: videoThumbnailReducer,
   videos: videosReducer,
-  liveStream:liveStreamReducer,
+  liveStream: liveStreamReducer,
   videoConvert: videoConvertReducer,
+  chat: chatReducer,
 });
 
 export default rootReducer;
