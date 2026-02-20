@@ -224,6 +224,15 @@
     overflow: hidden;
 }
 
+.videoWrapper {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
 .modalVideo {
     width: 100%;
     height: 100%;
@@ -236,7 +245,7 @@
     position: absolute;
     top: 8px;
     right: 10px;
-    background: rgba(255, 0, 0, 0.8);
+    background: rgba(19, 1, 1, 0.8);
     color: white;
     border: none;
     font-size: 18px;
@@ -244,4 +253,43 @@
     border-radius: 50%;
     cursor: pointer;
     z-index: 10;
+}
+
+.hoverThumbnail {
+    position: absolute;
+    bottom: 60px;
+    /* above video controls */
+    pointer-events: none;
+    border: 2px solid #fff;
+    border-radius: 4px;
+    background-color: #000;
+    background-repeat: no-repeat;
+    z-index: 9999;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+/* Fullscreen support - when videoWrapper goes fullscreen */
+.videoWrapper:fullscreen,
+.videoWrapper:-webkit-full-screen,
+.videoWrapper:-moz-full-screen,
+.videoWrapper:-ms-fullscreen {
+    background: #000;
+}
+
+.videoWrapper:fullscreen .hoverThumbnail,
+.videoWrapper:-webkit-full-screen .hoverThumbnail,
+.videoWrapper:-moz-full-screen .hoverThumbnail,
+.videoWrapper:-ms-fullscreen .hoverThumbnail {
+    position: fixed;
+    z-index: 2147483647;
+    bottom: 80px;
+}
+
+.videoWrapper:fullscreen .modalVideo,
+.videoWrapper:-webkit-full-screen .modalVideo,
+.videoWrapper:-moz-full-screen .modalVideo,
+.videoWrapper:-ms-fullscreen .modalVideo {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
 }
