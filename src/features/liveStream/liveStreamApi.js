@@ -1,9 +1,7 @@
 import axios from 'axios'
+import { store } from '../../redux/store'  
 
-// export const BACKEND_URL = 'https://jamila-coky-closer.ngrok-free.dev'
-// export const BACKEND_URL = "http://localhost:3333" 
-// export const BACKEND_URL = import.meta.env.VITE_API_URL || "http://localhost:3333/api" ||"https://192.168.0.186:3333/api";
-export const BACKEND_URL = import.meta.env.VITE_API_URL;
+export const BACKEND_URL = import.meta.env.VITE_API_URL
 
 export const ICE_SERVERS = [
   { urls: 'stun:stun.l.google.com:19302' },
@@ -11,6 +9,14 @@ export const ICE_SERVERS = [
 ]
 
 const api = axios.create({ baseURL: BACKEND_URL })
+
+api.interceptors.request.use((config) => {
+  const token = store.getState().auth.token
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`
+  }
+  return config
+})
 
 export const liveStreamApi = {
   startSession: (title) =>
