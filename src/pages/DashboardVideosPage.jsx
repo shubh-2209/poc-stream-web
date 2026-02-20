@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import {
@@ -10,9 +10,6 @@ import {
 import Navbar from "../components/Navbar";
 import styles from "../styles/Dashboard/DashboardVideosPage.module.css";
 
-// Backend base URL (needed for sprite thumbnails)
-const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3333";
-
 const DashboardVideosPage = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
@@ -22,76 +19,86 @@ const DashboardVideosPage = () => {
 
     const [selectedVideo, setSelectedVideo] = useState(null);
     const [hoverTime, setHoverTime] = useState(null);
-    const [hoverX, setHoverX] = useState(null);
+    const [isFullscreen, setIsFullscreen] = useState(false);
 
     const videoRef = useRef(null);
+    const wrapperRef = useRef(null);
     const hoverThumbRef = useRef(null);
 
-    // ── Fetch videos on mount ────────────────────────────────
     useEffect(() => {
-        dispatch(fetchVideos({ page: 1, limit: 100 ,type:'video'}))
-            .unwrap()
-            .then((res) => console.log("📦 Videos fetched:", res))
-            .catch((err) => console.error("❌ FetchVideos Error:", err));
+        dispatch(fetchVideos({ page: 1, limit: 100, type: "video" }));
     }, [dispatch]);
 
-    // ── Handlers ────────────────────────────────────────────
-    const handleUploadClick = () => {
-        navigate("/uploadVideoFilter");
-        navigate("/uploadVideoFilter");
-    };
+    // Track fullscreen for icon toggle
+    useEffect(() => {
+        const onFSChange = () => setIsFullscreen(!!document.fullscreenElement);
+        document.addEventListener("fullscreenchange", onFSChange);
+        return () => document.removeEventListener("fullscreenchange", onFSChange);
+    }, []);
 
-    const handleVideoClick = (video) => {
-        setSelectedVideo(video);
-    };
+    const toggleFullscreen = useCallback((e) => {
+        e.stopPropagation();
+        if (!document.fullscreenElement) {
+            wrapperRef.current?.requestFullscreen().catch(() => { });
+        } else {
+            document.exitFullscreen().catch(() => { });
+        }
+    }, []);
+
+    const handleVideoClick = (video) => setSelectedVideo(video);
 
     const handleCloseModal = () => {
-        if (videoRef.current) {
-            videoRef.current.pause();
-            videoRef.current.currentTime = 0;
-        }
+        if (document.fullscreenElement) document.exitFullscreen().catch(() => { });
+        videoRef.current?.pause();
+        if (videoRef.current) videoRef.current.currentTime = 0;
         setSelectedVideo(null);
         setHoverTime(null);
-        setHoverX(null);
     };
 
+    // ── Hover thumbnail ──────────────────────────────────────────
+    // No bottom-area check — show thumbnail anywhere on video hover
+    // This is simpler and matches what was working before
     const handleHoverThumbnail = (e) => {
-        if (!selectedVideo?.sprite || !videoRef.current) return;
+        const sprite = selectedVideo?.spriteData ?? selectedVideo?.sprite ?? null;
+        const interval = selectedVideo?.spriteInterval ?? selectedVideo?.interval ?? 1;
+        const duration = selectedVideo?.duration;
+
+        if (!sprite || !duration || !videoRef.current) return;
 
         const rect = videoRef.current.getBoundingClientRect();
         const mouseX = e.clientX - rect.left;
-        const progress = Math.min(Math.max(mouseX / rect.width, 0), 1);
-        const time = progress * selectedVideo.duration;
+        const percent = Math.max(0, Math.min(mouseX / rect.width, 1));
+        const time = percent * duration;
 
         setHoverTime(time);
-        setHoverX(mouseX);
 
-        // Calculate sprite frame
-        const frameIndex = Math.floor(time / selectedVideo.interval);
-        const { columns, thumbWidth, thumbHeight } = selectedVideo.sprite;
-        const row = Math.floor(frameIndex / columns);
-        const col = frameIndex % columns;
+        const frameIndex = Math.floor(time / interval);
+        const col = frameIndex % sprite.columns;
+        const row = Math.floor(frameIndex / sprite.columns);
 
         if (hoverThumbRef.current) {
-            hoverThumbRef.current.style.backgroundPosition = `-${col * thumbWidth}px -${row * thumbHeight}px`;
+            hoverThumbRef.current.style.backgroundPosition =
+                `-${col * sprite.thumbWidth}px -${row * sprite.thumbHeight}px`;
+
+            const left = Math.max(
+                0,
+                Math.min(mouseX - sprite.thumbWidth / 2, rect.width - sprite.thumbWidth)
+            );
+            hoverThumbRef.current.style.left = `${left}px`;
         }
     };
 
-    // ── Render ───────────────────────────────────────────────
     return (
         <div className={styles.page}>
             <Navbar />
 
             <div className={styles.content}>
-                {/* Header */}
                 <div className={styles.header}>
-                    {/* <h1 className={styles.title}>My Videos</h1> */}
-                    <button className={styles.uploadBtn} onClick={handleUploadClick}>
+                    <button className={styles.uploadBtn} onClick={() => navigate("/uploadVideoFilter")}>
                         📤 Upload Video
                     </button>
                 </div>
 
-                {/* Loading */}
                 {loading && (
                     <div className={styles.stateBox}>
                         <div className={styles.spinner} />
@@ -99,117 +106,139 @@ const DashboardVideosPage = () => {
                     </div>
                 )}
 
-                {/* Error */}
                 {!loading && error && (
                     <div className={styles.stateBox}>
                         <p className={styles.errorText}>❌ {error}</p>
                     </div>
                 )}
 
-                {/* Empty state */}
                 {!loading && !error && videos.length === 0 && (
                     <div className={styles.emptyState}>
                         <div className={styles.emptyIcon}>📭</div>
                         <h2 className={styles.emptyTitle}>No videos uploaded yet</h2>
                         <p className={styles.emptySubtitle}>Upload your first video to get started</p>
-                        <button className={styles.uploadBtn} onClick={handleUploadClick}>
+                        <button className={styles.uploadBtn} onClick={() => navigate("/uploadVideoFilter")}>
                             📤 Upload Video
                         </button>
                     </div>
                 )}
 
-                {/* Videos Grid */}
                 {!loading && !error && videos.length > 0 && (
                     <div className={styles.grid}>
-                        {videos.map((video, index) => (
-                            <div
-                                key={video.id || index}
-                                className={styles.videoCard}
-                                onClick={() => handleVideoClick(video)}
-                                style={{ cursor: "pointer" }}
-                            >
-                                {/* Thumbnail */}
-                                <div className={styles.thumbnail}>
-                                    {video.thumbnailPath || video.posterUrl ? (
-                                        <img
-                                            src={video.thumbnailPath || video.posterUrl}
-                                            alt={video.title || "Video"}
-                                            className={styles.thumbnailImg}
-                                        />
-                                    ) : (
-                                        <div className={styles.thumbnailPlaceholder}>🎬</div>
-                                    )}
-                                    {video.duration && (
-                                        <span className={styles.duration}>{formatDuration(video.duration)}</span>
-                                    )}
-                                </div>
+                        {videos.map((video, index) => {
+                            const sprite = video.spriteData ?? video.sprite ?? null;
+                            return (
+                                <div
+                                    key={video.id || index}
+                                    className={styles.videoCard}
+                                    onClick={() => handleVideoClick(video)}
+                                >
+                                    <div className={styles.thumbnail}>
+                                        {video.cloudinaryPublicId ? (
+                                            <img
+                                                src={`https://res.cloudinary.com/dthij9ek2/video/upload/so_0,f_auto,q_auto/${video.cloudinaryPublicId}.jpg`}
+                                                alt={video.title || "Video"}
+                                                className={styles.thumbnailImg}
+                                            />
+                                        ) : (
+                                            <div className={styles.thumbnailPlaceholder}>🎬</div>
+                                        )}
 
-                                {/* Info */}
-                                <div className={styles.videoInfo}>
-                                    <p className={styles.videoTitle}>
-                                        {video.title || video.originalFilename || "Untitled"}
-                                    </p>
-                                    <p className={styles.videoMeta}>
-                                        {video.resolution && <span className={styles.badge}>{video.resolution}</span>}
-                                        <span
-                                            className={`${styles.badge} ${video.status === "ready" ? styles.badgeReady : styles.badgePending
-                                                }`}
-                                        >
-                                            {video.status || "ready"}
-                                        </span>
-                                    </p>
+                                        {video.duration && (
+                                            <span className={styles.duration}>
+                                                {formatDuration(video.duration)}
+                                            </span>
+                                        )}
+                                    </div>
+
+                                    <div className={styles.videoInfo}>
+                                        <p className={styles.videoTitle}>
+                                            {video.title || video.originalFilename || "Untitled"}
+                                        </p>
+                                        <div className={styles.videoMeta}>
+                                            {video.resolution && (
+                                                <span className={styles.badge}>{video.resolution}</span>
+                                            )}
+                                            <span className={`${styles.badge} ${video.status === "ready" ? styles.badgeReady : styles.badgePending}`}>
+                                                {video.status || "ready"}
+                                            </span>
+                                            {sprite && (
+                                                <span className={`${styles.badge} ${styles.badgeSprite}`}>🎞 Preview</span>
+                                            )}
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                        ))}
+                            );
+                        })}
                     </div>
                 )}
             </div>
 
-            {/* Modal */}
-            {selectedVideo && (
-                <div className={styles.modalOverlay} onClick={handleCloseModal}>
-                    <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
-                        <button
-                            className={styles.closeBtn}
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                handleCloseModal();
-                            }}
-                        >
-                            ✖
-                        </button>
+            {selectedVideo && (() => {
+                const sprite = selectedVideo.spriteData ?? selectedVideo.sprite ?? null;
+                return (
+                    <div className={styles.modalOverlay} onClick={handleCloseModal}>
+                        <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
 
-                        <video
-                            ref={videoRef}
-                            src={selectedVideo.cloudinaryUrl}
-                            controls
-                            autoPlay
-                            className={styles.modalVideo}
-                            onMouseMove={handleHoverThumbnail}
-                        />
+                            <button
+                                className={styles.closeBtn}
+                                onClick={(e) => { e.stopPropagation(); handleCloseModal(); }}
+                            >
+                                ✖
+                            </button>
 
-                        {/* Hover thumbnail */}
-                        {selectedVideo.sprite && (
-                            <div
-                                ref={hoverThumbRef}
-                                className={styles.hoverThumbnail}
-                                style={{
-                                    display: hoverTime !== null ? "block" : "none",
-                                    left: hoverX ? hoverX + "px" : "0",
-                                    backgroundImage: `url(${BASE_URL}${selectedVideo.sprite.path})`,
-                                    width: selectedVideo.sprite.thumbWidth,
-                                    height: selectedVideo.sprite.thumbHeight,
-                                }}
-                            />
-                        )}
+                            <div ref={wrapperRef} className={styles.videoWrapper}>
+
+                                <video
+                                    ref={videoRef}
+                                    src={selectedVideo.cloudinaryUrl}
+                                    controls
+                                    autoPlay
+                                    className={styles.modalVideo}
+                                    onMouseMove={handleHoverThumbnail}
+                                    onMouseLeave={() => setHoverTime(null)}
+                                />
+
+                                {/* Custom fullscreen button */}
+                                <button
+                                    className={styles.fsBtn}
+                                    onClick={toggleFullscreen}
+                                    title={isFullscreen ? "Exit fullscreen" : "Fullscreen"}
+                                >
+                                    {isFullscreen ? (
+                                        <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
+                                            <path d="M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z" />
+                                        </svg>
+                                    ) : (
+                                        <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
+                                            <path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z" />
+                                        </svg>
+                                    )}
+                                </button>
+
+                                {/* Hover thumbnail — NO time label */}
+                                {sprite && hoverTime !== null && (
+                                    <div
+                                        ref={hoverThumbRef}
+                                        className={styles.hoverThumbnail}
+                                        style={{
+                                            backgroundImage: `url('${sprite.path}')`,
+                                            width: `${sprite.thumbWidth}px`,
+                                            height: `${sprite.thumbHeight}px`,
+                                            backgroundSize: `${sprite.spriteWidth}px ${sprite.spriteHeight}px`,
+                                        }}
+                                    />
+                                )}
+
+                            </div>
+                        </div>
                     </div>
-                </div>
-            )}
+                );
+            })()}
         </div>
     );
 };
 
-// ── Helpers ───────────────────────────────────────────────
 function formatDuration(seconds) {
     const m = Math.floor(seconds / 60);
     const s = Math.floor(seconds % 60);
