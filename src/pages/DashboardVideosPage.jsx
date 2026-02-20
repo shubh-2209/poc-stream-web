@@ -29,7 +29,7 @@ const DashboardVideosPage = () => {
 
     // ── Fetch videos on mount ────────────────────────────────
     useEffect(() => {
-        dispatch(fetchVideos({ page: 1, limit: 100 }))
+        dispatch(fetchVideos({ page: 1, limit: 100 ,type:'video'}))
             .unwrap()
             .then((res) => console.log("📦 Videos fetched:", res))
             .catch((err) => console.error("❌ FetchVideos Error:", err));
@@ -37,6 +37,7 @@ const DashboardVideosPage = () => {
 
     // ── Handlers ────────────────────────────────────────────
     const handleUploadClick = () => {
+        navigate("/uploadVideoFilter");
         navigate("/uploadVideoFilter");
     };
 
@@ -84,6 +85,7 @@ const DashboardVideosPage = () => {
             <div className={styles.content}>
                 {/* Header */}
                 <div className={styles.header}>
+                    {/* <h1 className={styles.title}>My Videos</h1> */}
                     <button className={styles.uploadBtn} onClick={handleUploadClick}>
                         📤 Upload Video
                     </button>

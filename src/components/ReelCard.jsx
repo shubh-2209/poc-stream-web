@@ -192,7 +192,7 @@ const ReelCard = ({ video, isVisible }) => {
         onError={handleVideoError}
       />
       
-      <div className={styles.menuContainer}>
+      {/* <div className={styles.menuContainer}>
         <button className={styles.menuButton} onClick={toggleMenu}>
           ⋮
         </button>
@@ -235,7 +235,7 @@ const ReelCard = ({ video, isVisible }) => {
             </button>
           </div>
         )}
-      </div>
+      </div> */}
       
       <div className={styles.overlay}>
         <div className={styles.info}>

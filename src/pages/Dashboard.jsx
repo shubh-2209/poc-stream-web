@@ -27,7 +27,7 @@ const Dashboard = () => {
   const observerRef = useRef(null);
 
   useEffect(() => {
-    dispatch(fetchVideos({ page: 1, limit: 1000 }));
+    dispatch(fetchVideos({ page: 1, limit: 1000 ,type:'reel'}));
   }, [dispatch]);
 
   useEffect(() => {
