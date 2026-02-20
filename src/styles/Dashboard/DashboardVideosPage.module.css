@@ -297,9 +297,9 @@
     bottom: 10px;
     right: 10px;
     z-index: 50;
-    background: rgba(0, 0, 0, 0.6);
+    background: transparent;
     border: none;
-    color: #fff;
+    color: transparent;
     width: 34px;
     height: 34px;
     border-radius: 6px;
@@ -315,9 +315,7 @@
     opacity: 1;
 }
 
-.fsBtn:hover {
-    background: rgba(0, 0, 0, 0.85);
-}
+
 
 .videoWrapper:fullscreen .fsBtn {
     opacity: 1;
