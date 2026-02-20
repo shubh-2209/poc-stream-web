@@ -28,14 +28,14 @@ export function uploadVideoForThumbnails(file, onProgress) {
     })
 
     xhr.addEventListener('error', () => reject(new Error('Network error')))
-    xhr.open('POST', `${BASE_URL}/thumbnails/upload`)
+    xhr.open('POST', `${BASE_URL}/api/v1/upload`)
     xhr.send(form)
   })
 }
 
 // Get thumbnails for a video by ID
 export async function getThumbnailsApi(videoId) {
-  const res = await fetch(`${BASE_URL}/thumbnails/videos/${videoId}/thumbnails`)
+  const res = await fetch(`${BASE_URL}/api/v1/videos/${videoId}/thumbnails`)
   const json = await res.json()
   if (!res.ok) throw new Error(json.message || 'Failed to fetch thumbnails')
   return json.data
