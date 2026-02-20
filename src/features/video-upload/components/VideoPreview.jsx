@@ -1,185 +1,198 @@
-import React, { useRef, useState, useEffect } from "react";
-import "../styles/VideoPreview.css";
+import React from 'react'
 
-const VideoPreview = ({ videoUrl, videoFile, duration = 0, thumbnails = [] }) => {
-  const videoRef = useRef(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [videoDuration, setVideoDuration] = useState(duration);
-  const [showThumbnailPreview, setShowThumbnailPreview] = useState(false);
-  const [hoverThumbnail, setHoverThumbnail] = useState(null);
-
-  const handlePlayPause = () => {
-    if (videoRef.current) {
-      if (isPlaying) {
-        videoRef.current.pause();
-      } else {
-        videoRef.current.play();
-      }
-      setIsPlaying(!isPlaying);
-    }
-  };
-
-  const handleLoadedMetadata = () => {
-    if (videoRef.current) {
-      const dur = videoRef.current.duration;
-      setVideoDuration(dur);
-    }
-  };
-
-  const handleTimeUpdate = () => {
-    if (videoRef.current) {
-      setCurrentTime(videoRef.current.currentTime);
-    }
-  };
-
-  const handleProgressChange = (e) => {
-    const time = parseFloat(e.target.value);
-    if (videoRef.current) {
-      videoRef.current.currentTime = time;
-      setCurrentTime(time);
-    }
-  };
-
-  const formatTime = (seconds) => {
-    if (!seconds) return "0:00";
-    const hrs = Math.floor(seconds / 3600);
-    const mins = Math.floor((seconds % 3600) / 60);
-    const secs = Math.floor(seconds % 60);
-
-    if (hrs > 0) {
-      return `${hrs}:${mins.toString().padStart(2, "0")}:${secs
-        .toString()
-        .padStart(2, "0")}`;
-    }
-    return `${mins}:${secs.toString().padStart(2, "0")}`;
-  };
-
-  const getFileSize = () => {
-    if (!videoFile) return "0 MB";
-    const size = videoFile.size / (1024 * 1024);
-    return size.toFixed(2) + " MB";
-  };
-
-  // Find nearest thumbnail for hover preview
-  const getNearestThumbnail = (hoverTime) => {
-    if (!thumbnails.length) return null;
+/**
+ * VideoPreview Component
+ * FIXED: Now properly detects and reports video duration
+ * 
+ * This component is crucial for step 2 → 3 navigation
+ */
+const VideoPreview = ({
+  videoUrl,
+  videoFile,
+  duration,
+  onDurationChange,
+}) => {
+  // ============ HANDLE VIDEO DURATION ============
+  /**
+   * This is called when video metadata loads
+   * CRITICAL: Must call onDurationChange() to enable Next button
+   */
+  const handleLoadedMetadata = (event) => {
+    const videoDuration = event.target.duration
     
-    let nearest = thumbnails[0];
-    let minDiff = Math.abs(thumbnails[0].timeSecond - hoverTime);
+    console.log('🎬 Video loaded!')
+    console.log('   Duration:', videoDuration)
     
-    for (let i = 1; i < thumbnails.length; i++) {
-      const diff = Math.abs(thumbnails[i].timeSecond - hoverTime);
-      if (diff < minDiff) {
-        minDiff = diff;
-        nearest = thumbnails[i];
-      }
+    // ✅ IMPORTANT: Call the callback to update parent state
+    if (videoDuration && onDurationChange) {
+      console.log('✅ Calling onDurationChange callback')
+      onDurationChange(videoDuration)
     }
-    
-    return nearest;
-  };
+  }
 
-  const handleTimelineHover = (e) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const percent = (e.clientX - rect.left) / rect.width;
-    const hoverTime = percent * videoDuration;
-    const thumbnail = getNearestThumbnail(hoverTime);
-    setHoverThumbnail(thumbnail);
-  };
-
+  // ============ RENDER ============
   return (
-    <div className="video-preview">
-      <div className="preview-container">
-        <video
-          ref={videoRef}
-          src={videoUrl}
-          onLoadedMetadata={handleLoadedMetadata}
-          onTimeUpdate={handleTimeUpdate}
-          className="preview-video"
-        />
+    <div className="video-preview-container">
+      <h3>📺 Video Preview</h3>
 
-        <button className="play-button" onClick={handlePlayPause}>
-          {isPlaying ? (
-            <svg viewBox="0 0 24 24" fill="currentColor">
-              <rect x="6" y="4" width="4" height="16" />
-              <rect x="14" y="4" width="4" height="16" />
-            </svg>
-          ) : (
-            <svg viewBox="0 0 24 24" fill="currentColor">
-              <path d="M8 5v14l11-7z" />
-            </svg>
-          )}
-        </button>
+      {/* VIDEO PLAYER */}
+      <video
+        src={videoUrl}
+        controls
+        onLoadedMetadata={handleLoadedMetadata}  // ← CRITICAL EVENT
+        className="video-player"
+        style={{
+          width: '100%',
+          maxHeight: '400px',
+          backgroundColor: '#000',
+          borderRadius: '8px',
+          marginBottom: '20px',
+        }}
+      />
 
-        <div className="video-controls">
-          <div className="timeline-wrapper">
-            <input
-              type="range"
-              min="0"
-              max={videoDuration || 0}
-              value={currentTime}
-              onChange={handleProgressChange}
-              onMouseEnter={() => setShowThumbnailPreview(true)}
-              onMouseLeave={() => setShowThumbnailPreview(false)}
-              onMouseMove={handleTimelineHover}
-              className="timeline-input"
-            />
-
-            {/* Thumbnail preview on hover (if backend provides thumbnail URLs) */}
-            {showThumbnailPreview && hoverThumbnail && (
-              <div className="thumbnail-preview">
-                <div className="thumb-image">
-                  {hoverThumbnail.imagePath && (
-                    <img
-                      src={hoverThumbnail.imagePath}
-                      alt={`Thumbnail at ${hoverThumbnail.timeLabel}`}
-                      className="preview-thumb"
-                    />
-                  )}
-                </div>
-                <p className="thumb-label">{hoverThumbnail.timeLabel}</p>
-              </div>
-            )}
-          </div>
-
-          <div className="time-display">
-            <span>{formatTime(currentTime)}</span>
-            <span> / </span>
-            <span>{formatTime(videoDuration)}</span>
-          </div>
-        </div>
-      </div>
-
+      {/* VIDEO INFO */}
       <div className="video-info">
-        <div className="info-group">
-          <label>File Name</label>
-          <p>{videoFile?.name || "Unknown"}</p>
-        </div>
-
-        <div className="info-group">
-          <label>File Size</label>
-          <p>{getFileSize()}</p>
-        </div>
-
-        <div className="info-group">
-          <label>Duration</label>
-          <p>{formatTime(videoDuration)}</p>
-        </div>
-
-        <div className="info-group">
-          <label>Video Type</label>
-          <p>{videoFile?.type || "Unknown"}</p>
-        </div>
-
-        {thumbnails.length > 0 && (
-          <div className="info-group">
-            <label>Thumbnails Generated</label>
-            <p>{thumbnails.length} frames</p>
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
+            gap: '15px',
+          }}
+        >
+          {/* File Name */}
+          <div
+            style={{
+              padding: '15px',
+              backgroundColor: '#f3f4f6',
+              borderRadius: '8px',
+              border: '1px solid #e5e7eb',
+            }}
+          >
+            <label style={{
+              fontSize: '0.85rem',
+              fontWeight: '600',
+              color: '#6b7280',
+              display: 'block',
+              marginBottom: '8px',
+            }}>
+              📄 File Name
+            </label>
+            <p
+              style={{
+                margin: '0',
+                fontWeight: 'bold',
+                color: '#1f2937',
+                fontSize: '0.95rem',
+              }}
+            >
+              {videoFile?.name || 'Unknown'}
+            </p>
           </div>
-        )}
-      </div>
-    </div>
-  );
-};
 
-export default VideoPreview;
+          {/* File Size */}
+          <div
+            style={{
+              padding: '15px',
+              backgroundColor: '#f3f4f6',
+              borderRadius: '8px',
+              border: '1px solid #e5e7eb',
+            }}
+          >
+            <label style={{
+              fontSize: '0.85rem',
+              fontWeight: '600',
+              color: '#6b7280',
+              display: 'block',
+              marginBottom: '8px',
+            }}>
+              💾 File Size
+            </label>
+            <p
+              style={{
+                margin: '0',
+                fontWeight: 'bold',
+                color: '#1f2937',
+                fontSize: '0.95rem',
+              }}
+            >
+              {videoFile?.size
+                ? (videoFile.size / 1024 / 1024).toFixed(2) + ' MB'
+                : 'Unknown'}
+            </p>
+          </div>
+
+          {/* Duration */}
+          <div
+            style={{
+              padding: '15px',
+              backgroundColor: duration > 0 ? '#d1fae5' : '#fee2e2',
+              borderRadius: '8px',
+              border: duration > 0 ? '1px solid #6ee7b7' : '1px solid #fecaca',
+            }}
+          >
+            <label style={{
+              fontSize: '0.85rem',
+              fontWeight: '600',
+              color: duration > 0 ? '#065f46' : '#991b1b',
+              display: 'block',
+              marginBottom: '8px',
+            }}>
+              ⏱️ Duration
+            </label>
+            <p
+              style={{
+                margin: '0',
+                fontWeight: 'bold',
+                color: duration > 0 ? '#065f46' : '#991b1b',
+                fontSize: '0.95rem',
+              }}
+            >
+              {duration > 0 ? duration.toFixed(2) + ' seconds' : '⏳ Loading...'}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* STATUS MESSAGE */}
+      {duration > 0 ? (
+        <div
+          style={{
+            marginTop: '20px',
+            padding: '12px 16px',
+            backgroundColor: '#d1fae5',
+            border: '1px solid #6ee7b7',
+            borderRadius: '6px',
+            color: '#065f46',
+            fontWeight: '500',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+          }}
+        >
+          <span>✅</span>
+          <span>Video loaded successfully! You can proceed to the next step.</span>
+        </div>
+      ) : (
+        <div
+          style={{
+            marginTop: '20px',
+            padding: '12px 16px',
+            backgroundColor: '#fee2e2',
+            border: '1px solid #fecaca',
+            borderRadius: '6px',
+            color: '#991b1b',
+            fontWeight: '500',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+          }}
+        >
+          <span>⏳</span>
+          <span>Please wait for the video to load completely...</span>
+        </div>
+      )}
+    </div>
+  )
+}
+
+export default VideoPreview
