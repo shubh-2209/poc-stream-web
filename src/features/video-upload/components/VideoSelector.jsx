@@ -109,7 +109,7 @@ const VideoSelector = ({ onVideoSelect, isLoading = false, error = null }) => {
 
             <div className="supported-formats">
               <p>Supported formats: MP4, WebM, MOV, AVI, MKV</p>
-              <p>Max file size: 2GB</p>
+              <p>Max file size: 100MB</p>
             </div>
           </div>
         )}
