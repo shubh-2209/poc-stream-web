@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react"
+import React, { useState, useEffect, useRef } from "react"
 import VideoSelector from "../features/video-upload/components/VideoSelector"
 import VideoPreview from "../features/video-upload/components/VideoPreview"
 import VideoEditor from "../features/video-upload/components/VideoEditor"
@@ -8,19 +8,23 @@ import StepIndicator from "../features/video-upload/components/StepIndicator"
 import "../features/video-upload/styles/VideoUploadPage.css"
 
 /**
- * SIMPLE WORKFLOW - ONLY UPLOAD IN STEP 5
- * FIXED: Navigation from step 2 to 3 and beyond
+ * VideoUploadFilterPage
+ * 
+ * KEY CHANGE vs original:
+ * - handleUpload() now uses SSE (EventSource / fetch + ReadableStream)
+ *   instead of a fake setInterval progress simulation
+ * - Real server progress messages are passed to UploadProgress
+ * - isUploading stays true until server sends 'complete' or 'error'
+ * - No more 95% stall — progress reflects what server is actually doing
  */
 const VideoUploadFilterPage = () => {
   const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3333/api"
-  
-  // ============ STATE: Video File (LOCAL ONLY) ============
+
   const [currentStep, setCurrentStep] = useState(1)
   const [videoFile, setVideoFile] = useState(null)
   const [videoUrl, setVideoUrl] = useState(null)
   const [duration, setDuration] = useState(0)
-  
-  // ============ STATE: Filters (LOCAL ONLY) ============
+
   const [filters, setFilters] = useState({
     brightness: 100,
     contrast: 100,
@@ -30,220 +34,169 @@ const VideoUploadFilterPage = () => {
     sharpen: 0,
     opacity: 100,
   })
-  
-  // ============ STATE: Trim (LOCAL ONLY) ============
+
   const [trimData, setTrimData] = useState({ start: 0, end: null })
-  
-  // ============ STATE: Upload Progress (STEP 5 ONLY) ============
+
   const [isUploading, setIsUploading] = useState(false)
   const [uploadProgress, setUploadProgress] = useState(0)
+  const [uploadStatusMessage, setUploadStatusMessage] = useState("")
   const [uploadError, setUploadError] = useState(null)
   const [finalResult, setFinalResult] = useState(null)
 
-  // ============ DEBUG LOGGING ============
   useEffect(() => {
-    console.log('📊 Current state:', {
+    console.log("📊 State:", {
       step: currentStep,
-      videoFile: videoFile?.name || 'none',
-      duration: duration > 0 ? duration.toFixed(2) + 's' : 'waiting',
-      canNext: currentStep < 5 && (currentStep !== 2 || duration > 0),
+      file: videoFile?.name || "none",
+      duration: duration > 0 ? duration.toFixed(2) + "s" : "waiting",
     })
-  }, [currentStep, videoFile, duration, isUploading])
+  }, [currentStep, videoFile, duration])
 
-  // ============ STEP 1: SELECT VIDEO (NO API CALL) ============
+  // ── Step 1: Select ────────────────────────────────────────────
   const handleVideoSelect = (file) => {
-    try {
-      console.log('📁 File selected:', file.name)
-
-      setVideoFile(file)
-      setVideoUrl(URL.createObjectURL(file))
-      setUploadError(null)
-      setFinalResult(null)
-      setDuration(0) // Reset duration when new file selected
-      
-      // Move to step 2
-      setCurrentStep(2)
-      console.log('✅ Moving to step 2')
-
-    } catch (error) {
-      console.error('❌ Error:', error.message)
-      setUploadError(error.message)
-    }
+    setVideoFile(file)
+    setVideoUrl(URL.createObjectURL(file))
+    setUploadError(null)
+    setFinalResult(null)
+    setDuration(0)
+    setCurrentStep(2)
   }
 
-  // ============ STEP 2: VIDEO PREVIEW (NO API CALL) ============
+  // ── Step 2: Duration detected ─────────────────────────────────
   const handleVideoDuration = (videoDuration) => {
-    console.log('⏱️ Duration detected:', videoDuration.toFixed(2) + 's')
     setDuration(videoDuration)
-    setTrimData({
-      start: 0,
-      end: videoDuration,
-    })
+    setTrimData({ start: 0, end: videoDuration })
   }
 
-  // ============ STEP 3: APPLY FILTERS (NO API CALL) ============
-  const handleFilterChange = (newFilters) => {
-    console.log('🎨 Filters changed')
-    setFilters(newFilters)
-  }
+  const handleFilterChange = (newFilters) => setFilters(newFilters)
+  const handleTrimChange = (newTrimData) => setTrimData(newTrimData)
 
-  // ============ STEP 4: TRIM VIDEO (NO API CALL) ============
-  const handleTrimChange = (newTrimData) => {
-    console.log('✂️ Trim changed:', (newTrimData.end - newTrimData.start).toFixed(2) + 's')
-    setTrimData(newTrimData)
-  }
-
-  // ============ NAVIGATION ============
+  // ── Navigation ────────────────────────────────────────────────
   const handleNext = () => {
-    // ✅ FIX: Allow next if not uploading and conditions met
-    if (isUploading) {
-      console.log('⏸️ Cannot navigate while uploading')
-      return
-    }
-
+    if (isUploading) return
     if (currentStep === 2 && duration === 0) {
-      console.log('⚠️ Cannot proceed - waiting for duration')
-      setUploadError('Please wait for video to load completely')
+      setUploadError("Please wait for video to load completely")
       return
     }
-
     if (currentStep < 5) {
-      console.log('➡️ Step', currentStep, '→', currentStep + 1)
       setCurrentStep(currentStep + 1)
-      setUploadError(null) // Clear error when moving forward
+      setUploadError(null)
     }
   }
 
   const handlePrev = () => {
     if (currentStep > 1 && !isUploading) {
-      console.log('⬅️ Step', currentStep, '→', currentStep - 1)
       setCurrentStep(currentStep - 1)
     }
   }
 
-  // ============ STEP 5: UPLOAD WITH FILTERS (ONLY API CALL) ============
+  // ── Step 5: Upload with REAL SSE progress ─────────────────────
   const handleUpload = async () => {
-    // ✅ Validate video file
-    if (!videoFile) {
-      console.error('❌ No video file')
-      setUploadError('No video file selected')
+    if (!videoFile || duration === 0) {
+      setUploadError(!videoFile ? "No video file selected" : "Video duration not detected")
       return
     }
-
-    // ✅ Validate duration
-    if (duration === 0) {
-      console.error('❌ No duration')
-      setUploadError('Video duration not detected')
-      return
-    }
-
-    console.log('✅ Starting upload...')
-    console.log('   Video:', videoFile.name)
-    console.log('   Duration:', duration.toFixed(2) + 's')
-    console.log('   Trim:', trimData.start.toFixed(2) + 's to ' + trimData.end.toFixed(2) + 's')
 
     setIsUploading(true)
     setUploadProgress(0)
+    setUploadStatusMessage("Starting upload...")
     setUploadError(null)
 
-    let progressInterval = null
+    const formData = new FormData()
+    formData.append("video", videoFile)
+    formData.append("filters", JSON.stringify(filters))
+    formData.append("trimData", JSON.stringify(trimData))
 
     try {
-      const formData = new FormData()
-      formData.append('video', videoFile)
-      formData.append('filters', JSON.stringify(filters))
-      formData.append('trimData', JSON.stringify(trimData))
-
-      console.log('📤 Sending to /api/v1/videos/finalize...')
-
-      // Simulate progress
-      let currentProgress = 0
-      progressInterval = setInterval(() => {
-        setUploadProgress((prev) => {
-          if (prev >= 95) return prev
-          if (prev < 30) {
-            currentProgress = prev + Math.random() * 5
-          } else if (prev < 70) {
-            currentProgress = prev + Math.random() * 8
-          } else {
-            currentProgress = prev + Math.random() * 12
-          }
-          return Math.min(currentProgress, 95)
-        })
-      }, 300)
-
-      const response = await fetch(`${BASE_URL}/v1/videos/finalize`, {
-        method: 'POST',
+      // ─── SSE via fetch + ReadableStream ──────────────────────
+      // We use fetch (not EventSource) because EventSource doesn't support POST.
+      const res = await fetch(`${BASE_URL}/v1/videos/finalize`, {
+        method: "POST",
         body: formData,
       })
 
-      console.log('📨 Response status:', response.status)
-
-      if (!response.ok) {
-        if (progressInterval) clearInterval(progressInterval)
-
-        const contentType = response.headers.get('content-type') || ''
-        let errorMessage = `HTTP ${response.status}`
-
+      if (!res.ok) {
+        // Non-SSE error response
+        let msg = `Server error ${res.status}`
         try {
-          if (contentType.includes('application/json')) {
-            const errorData = await response.json()
-            errorMessage = errorData.message || errorMessage
+          const ct = res.headers.get("content-type") || ""
+          if (ct.includes("application/json")) {
+            const j = await res.json()
+            msg = j.message || msg
           } else {
-            const text = await response.text()
-            errorMessage = text.substring(0, 200) || errorMessage
+            msg = (await res.text()).substring(0, 200) || msg
           }
-        } catch (e) {
-          console.error('Error parsing error')
+        } catch (_) {}
+        throw new Error(msg)
+      }
+
+      // ─── Read SSE stream ──────────────────────────────────────
+      const reader = res.body.getReader()
+      const decoder = new TextDecoder()
+      let buffer = ""
+
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+
+        buffer += decoder.decode(value, { stream: true })
+
+        // SSE format: "event: foo\ndata: {...}\n\n"
+        // Split on double newline to get individual events
+        const parts = buffer.split("\n\n")
+        buffer = parts.pop() // last incomplete chunk stays in buffer
+
+        for (const part of parts) {
+          if (!part.trim()) continue
+
+          // Parse event type and data
+          let eventType = "message"
+          let dataStr = ""
+
+          for (const line of part.split("\n")) {
+            if (line.startsWith("event: ")) {
+              eventType = line.slice(7).trim()
+            } else if (line.startsWith("data: ")) {
+              dataStr = line.slice(6).trim()
+            }
+          }
+
+          if (!dataStr) continue
+
+          let payload
+          try {
+            payload = JSON.parse(dataStr)
+          } catch (_) {
+            continue
+          }
+
+          // ── Handle events ────────────────────────────────────
+          if (eventType === "progress") {
+            console.log(`📡 SSE progress: ${payload.percent}% — ${payload.message}`)
+            setUploadProgress(payload.percent)
+            setUploadStatusMessage(payload.message)
+          } else if (eventType === "complete") {
+            console.log("🎉 SSE complete!", payload.data)
+            setUploadProgress(100)
+            setUploadStatusMessage("Complete!")
+            setFinalResult(payload.data)
+            setIsUploading(false)
+          } else if (eventType === "error") {
+            console.error("❌ SSE error:", payload.message)
+            throw new Error(payload.message)
+          }
         }
-
-        throw new Error(errorMessage)
       }
-
-      const responseText = await response.text()
-
-      if (!responseText) {
-        if (progressInterval) clearInterval(progressInterval)
-        throw new Error('Empty response')
-      }
-
-      let result
-      try {
-        result = JSON.parse(responseText)
-      } catch (parseError) {
-        console.error('❌ JSON parse error')
-        if (progressInterval) clearInterval(progressInterval)
-        throw new Error('Invalid response')
-      }
-
-      if (!result.success) {
-        if (progressInterval) clearInterval(progressInterval)
-        throw new Error(result.message || 'Upload failed')
-      }
-
-      // Success!
-      if (progressInterval) clearInterval(progressInterval)
-      setUploadProgress(100)
-      setFinalResult(result.data)
-
-      console.log('🎉 SUCCESS!')
-      console.log('   Database ID:', result.data.database.id)
-
     } catch (error) {
-      console.error('❌ Upload error:', error.message)
+      console.error("❌ Upload error:", error.message)
       setUploadError(error.message)
       setIsUploading(false)
       setUploadProgress(0)
-
-      if (progressInterval) {
-        clearInterval(progressInterval)
-      }
+      setUploadStatusMessage("")
     }
   }
 
-  // ============ RESET ============
+  // ── Reset ─────────────────────────────────────────────────────
   const handleReset = () => {
-    console.log('🔄 Resetting...')
     setCurrentStep(1)
     setVideoFile(null)
     setVideoUrl(null)
@@ -260,11 +213,12 @@ const VideoUploadFilterPage = () => {
     setTrimData({ start: 0, end: null })
     setUploadProgress(0)
     setUploadError(null)
+    setUploadStatusMessage("")
     setIsUploading(false)
     setDuration(0)
   }
 
-  // ============ RENDER ============
+  // ── Render ────────────────────────────────────────────────────
   return (
     <div className="video-upload-container">
       <header className="upload-header">
@@ -275,7 +229,6 @@ const VideoUploadFilterPage = () => {
       <StepIndicator currentStep={currentStep} totalSteps={5} />
 
       <div className="upload-content">
-        {/* STEP 1: SELECT VIDEO */}
         {currentStep === 1 && (
           <VideoSelector
             onVideoSelect={handleVideoSelect}
@@ -284,7 +237,6 @@ const VideoUploadFilterPage = () => {
           />
         )}
 
-        {/* STEP 2: PREVIEW */}
         {currentStep === 2 && videoUrl && (
           <VideoPreview
             videoUrl={videoUrl}
@@ -294,7 +246,6 @@ const VideoUploadFilterPage = () => {
           />
         )}
 
-        {/* STEP 3: EDIT FILTERS */}
         {currentStep === 3 && videoUrl && (
           <VideoEditor
             videoUrl={videoUrl}
@@ -306,7 +257,6 @@ const VideoUploadFilterPage = () => {
           />
         )}
 
-        {/* STEP 4: FINAL PREVIEW */}
         {currentStep === 4 && videoUrl && (
           <FinalPreview
             videoUrl={videoUrl}
@@ -316,7 +266,6 @@ const VideoUploadFilterPage = () => {
           />
         )}
 
-        {/* STEP 5: UPLOAD */}
         {currentStep === 5 && videoUrl && (
           <UploadProgress
             isUploading={isUploading}
@@ -326,25 +275,27 @@ const VideoUploadFilterPage = () => {
             duration={duration}
             error={uploadError}
             finalResult={finalResult}
+            statusMessage={uploadStatusMessage}   // ← real server messages
           />
         )}
       </div>
 
-      {/* ERROR MESSAGE */}
       {uploadError && currentStep < 5 && (
-        <div className="error-banner" style={{
-          backgroundColor: '#fee2e2',
-          color: '#991b1b',
-          padding: '12px 16px',
-          borderRadius: '6px',
-          marginBottom: '20px',
-          border: '1px solid #fecaca',
-        }}>
+        <div
+          className="error-banner"
+          style={{
+            backgroundColor: "#fee2e2",
+            color: "#991b1b",
+            padding: "12px 16px",
+            borderRadius: "6px",
+            marginBottom: "20px",
+            border: "1px solid #fecaca",
+          }}
+        >
           ⚠️ {uploadError}
         </div>
       )}
 
-      {/* NAVIGATION */}
       {!finalResult ? (
         <div className="navigation-buttons">
           <button
@@ -357,20 +308,18 @@ const VideoUploadFilterPage = () => {
 
           <div className="step-info">
             Step {currentStep} of 5
-            {currentStep === 1 && ' - Select'}
-            {currentStep === 2 && ' - Preview'}
-            {currentStep === 3 && ' - Filters'}
-            {currentStep === 4 && ' - Review'}
-            {currentStep === 5 && ' - Upload'}
+            {currentStep === 1 && " - Select"}
+            {currentStep === 2 && " - Preview"}
+            {currentStep === 3 && " - Filters"}
+            {currentStep === 4 && " - Review"}
+            {currentStep === 5 && " - Upload"}
           </div>
 
           {currentStep < 5 ? (
             <button
               className="btn btn-primary"
               onClick={handleNext}
-              // ✅ FIX: Allow next if not uploading and (not step 2 or duration loaded)
               disabled={isUploading || (currentStep === 2 && duration === 0)}
-              title={currentStep === 2 && duration === 0 ? "Waiting for video to load..." : ""}
             >
               Next →
             </button>
@@ -388,14 +337,11 @@ const VideoUploadFilterPage = () => {
         </div>
       ) : (
         <div className="navigation-buttons">
-          <button
-            className="btn btn-primary"
-            onClick={handleReset}
-          >
+          <button className="btn btn-primary" onClick={handleReset}>
             Upload Another Video
           </button>
           <div className="success-info">
-            ✅ Video processed successfully! (ID: {finalResult.database.id})
+            ✅ Video processed successfully! (ID: {finalResult.database?.id})
           </div>
         </div>
       )}
