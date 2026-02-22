@@ -27,7 +27,7 @@ const Dashboard = () => {
   const observerRef = useRef(null);
 
   useEffect(() => {
-    dispatch(fetchVideos({ page: 1, limit: 1000 ,type:'reel'}));
+    dispatch(fetchVideos({ page: 1, limit: 1000, type: 'reel' }));
   }, [dispatch]);
 
   useEffect(() => {
@@ -79,14 +79,14 @@ const Dashboard = () => {
     <div className={styles.dashboard}>
       <Navbar />
 
-     
-     <div className="up_btn">
-      <button 
-        className={styles.uploadBtn} 
-        onClick={() => navigate("/upload")}
-      >
-        + Upload Reel
-      </button>
+
+      <div className="up_btn">
+        <button
+          className={styles.uploadBtn}
+          onClick={() => navigate("/upload")}
+        >
+          + Upload Reel
+        </button>
       </div>
 
       <div className={styles.reelsContainer} ref={containerRef}>
@@ -95,7 +95,6 @@ const Dashboard = () => {
             key={video.id || index}
             data-index={index}
             ref={index === videos.length - 1 ? lastVideoRef : null}
-            style={{ paddingTop: index === 0 ? '70px' : '0' }}
           >
             <ReelCard video={video} isVisible={visibleVideoIndex === index} />
           </div>

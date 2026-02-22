@@ -12,12 +12,9 @@ import styles from "../styles/Dashboard/DashboardVideosPage.module.css";
 
 const getCloudinaryThumb = (video) => {
     if (!video?.cloudinaryUrl || !video?.cloudinaryPublicId) return null;
-
     try {
         const url = new URL(video.cloudinaryUrl);
-        const parts = url.pathname.split("/");
-        const cloudName = parts[1];
-
+        const cloudName = url.pathname.split("/")[1];
         return `https://res.cloudinary.com/${cloudName}/video/upload/so_0,f_jpg,q_auto,w_400,ar_16:9,c_fill/${video.cloudinaryPublicId}.jpg`;
     } catch {
         return null;
@@ -76,8 +73,16 @@ const DashboardVideosPage = () => {
 
         if (!sprite || !duration || !videoRef.current) return;
 
-        const rect = videoRef.current.getBoundingClientRect();
+        const rect = wrapperRef.current.getBoundingClientRect();
         const mouseX = e.clientX - rect.left;
+        const mouseY = e.clientY - rect.top;
+
+        const CONTROLS_ZONE = 70;
+        if (mouseY < rect.height - CONTROLS_ZONE) {
+            setHoverTime(null);
+            return;
+        }
+
         const percent = Math.max(0, Math.min(mouseX / rect.width, 1));
         const time = percent * duration;
 
@@ -90,7 +95,10 @@ const DashboardVideosPage = () => {
         if (hoverThumbRef.current) {
             hoverThumbRef.current.style.backgroundPosition =
                 `-${col * sprite.thumbWidth}px -${row * sprite.thumbHeight}px`;
-            const left = Math.max(0, Math.min(mouseX - sprite.thumbWidth / 2, rect.width - sprite.thumbWidth));
+            const left = Math.max(0, Math.min(
+                mouseX - sprite.thumbWidth / 2,
+                rect.width - sprite.thumbWidth
+            ));
             hoverThumbRef.current.style.left = `${left}px`;
         }
     };
@@ -153,12 +161,10 @@ const DashboardVideosPage = () => {
                                         ) : (
                                             <div className={styles.thumbnailPlaceholder}>🎬</div>
                                         )}
-
                                         {dur && (
                                             <span className={styles.duration}>{formatDuration(dur)}</span>
                                         )}
                                     </div>
-
                                     <div className={styles.videoInfo}>
                                         <p className={styles.videoTitle}>
                                             {video.title || video.originalFilename || "Untitled"}
@@ -197,7 +203,12 @@ const DashboardVideosPage = () => {
                                 ✖
                             </button>
 
-                            <div ref={wrapperRef} className={styles.videoWrapper}>
+                            <div
+                                ref={wrapperRef}
+                                className={styles.videoWrapper}
+                                onMouseMove={handleHoverThumbnail}
+                                onMouseLeave={() => setHoverTime(null)}
+                            >
 
                                 <video
                                     ref={videoRef}
@@ -205,24 +216,28 @@ const DashboardVideosPage = () => {
                                     controls
                                     autoPlay
                                     className={styles.modalVideo}
-                                    onMouseMove={handleHoverThumbnail}
-                                    onMouseLeave={() => setHoverTime(null)}
                                 />
 
                                 {/* Custom fullscreen button */}
-                                <button className={styles.fsBtn} onClick={toggleFullscreen}>
+                                <button
+                                    className={styles.fsBtn}
+                                    onClick={toggleFullscreen}
+                                    title={isFullscreen ? "Exit fullscreen" : "Fullscreen"}
+                                >
                                     {isFullscreen ? (
-                                        <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
+                                        // Compress/exit icon
+                                        <svg viewBox="0 0 24 24" fill="white" width="16" height="16">
                                             <path d="M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z" />
                                         </svg>
                                     ) : (
-                                        <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
+                                        // Expand/enter icon
+                                        <svg viewBox="0 0 24 24" fill="white" width="16" height="16">
                                             <path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z" />
                                         </svg>
                                     )}
                                 </button>
 
-                                {/* Hover thumbnail */}
+                                {/* Hover sprite thumbnail */}
                                 {sprite && hoverTime !== null && (
                                     <div
                                         ref={hoverThumbRef}
@@ -235,13 +250,12 @@ const DashboardVideosPage = () => {
                                         }}
                                     />
                                 )}
-
                             </div>
                         </div>
                     </div>
                 );
             })()}
-        </div >
+        </div>
     );
 };
 

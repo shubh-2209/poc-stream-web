@@ -9,7 +9,7 @@
 .content {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 90px 24px 40px;
+    padding: 0px 24px 40px 0px;
 }
 
 .header {
@@ -94,7 +94,6 @@
     gap: 20px;
 }
 
-/* ── Video Card ───────────────────────────────────────────── */
 .videoCard {
     background: #1a1a1a;
     border-radius: 12px;
@@ -108,43 +107,15 @@
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
 }
 
-/* ── Thumbnail container ──────────────────────────────────── */
 .thumbnail {
     position: relative;
     width: 100%;
     aspect-ratio: 16 / 9;
     background: #1f1f1f;
     overflow: hidden;
-    /* ← clips sprite to card size */
     border-radius: 12px 12px 0 0;
 }
 
-/*
-  Card thumbnail — shows FIRST frame of sprite (backgroundPosition: 0 0)
-  
-  KEY FIXES:
-  1. NO background-size: cover — that overrides inline spriteWidth/spriteHeight
-  2. width/height 100% fills container, NOT sprite dimensions
-  3. Sprite is scaled to fit 16:9 card using background-size
-     formula: spriteWidth/thumbWidth * 100% = scale factor
-     e.g. 5 columns → scale = 500%  (each thumb = 20% of sprite width)
-*/
-.thumbnailSprite {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    background-repeat: no-repeat;
-    background-position: 0 0;
-    /* background-image and background-size set inline */
-    transition: transform 0.3s ease;
-}
-
-.videoCard:hover .thumbnailSprite {
-    transform: scale(1.05);
-}
-
-/* Regular img thumbnail (when no sprite) */
 .thumbnailImg {
     width: 100%;
     height: 100%;
@@ -179,7 +150,6 @@
     font-weight: 500;
 }
 
-/* ── Video Info ───────────────────────────────────────────── */
 .videoInfo {
     padding: 12px 14px 14px;
 }
@@ -251,7 +221,6 @@
     background: #000;
 }
 
-/* Fullscreen */
 .videoWrapper:fullscreen,
 .videoWrapper:-webkit-full-screen,
 .videoWrapper:-moz-full-screen {
@@ -263,6 +232,7 @@
     justify-content: center;
 }
 
+/* ── Modal Video ──────────────────────────────────────────── */
 .modalVideo {
     width: 100%;
     height: 100%;
@@ -275,6 +245,16 @@
     width: 100%;
     height: 100%;
     object-fit: contain;
+}
+
+.modalVideo::-webkit-media-controls-fullscreen-button {
+    display: none !important;
+    pointer-events: none !important;
+}
+
+/* Also hide the overflow menu that contains fullscreen on some browsers */
+.modalVideo::-webkit-media-controls-overflow-button {
+    display: none !important;
 }
 
 .closeBtn {
@@ -292,35 +272,35 @@
 }
 
 /* ── Custom Fullscreen Button ─────────────────────────────── */
+
 .fsBtn {
     position: absolute;
-    bottom: 10px;
-    right: 10px;
-    z-index: 50;
-    background: transparent;
-    border: none;
-    color: transparent;
+    bottom: 30px;
+    right: 29px;
+    z-index: 99;
     width: 34px;
     height: 34px;
-    border-radius: 6px;
+    background: transparent;
+    border: none;
+    color: #fff;
+    border-radius: 2px;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: background 0.15s, opacity 0.15s;
-    opacity: 0;
+    padding: 0;
+    opacity: 1;
+    transition: background 0.15s;
 }
 
-.videoWrapper:hover .fsBtn {
-    opacity: 1;
+.fsBtn:hover {
+    background: rgba(255, 255, 255, 0.15);
 }
 
-
-
-.videoWrapper:fullscreen .fsBtn {
-    opacity: 1;
-    bottom: 20px;
-    right: 20px;
+.videoWrapper:fullscreen .fsBtn,
+.videoWrapper:-webkit-full-screen .fsBtn {
+    bottom: 30px;
+    right: 28px;
 }
 
 /* ── Hover Thumbnail ──────────────────────────────────────── */

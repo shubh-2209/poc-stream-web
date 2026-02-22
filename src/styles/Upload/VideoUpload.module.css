@@ -4,7 +4,7 @@
   background: #0a0a0a;
   color: #fff;
   font-family: "DM Mono", "Fira Code", "Courier New", monospace;
-  padding-top: 60px;
+  /* padding-top: 60px; */
   box-sizing: border-box;
 }
 
@@ -50,8 +50,8 @@
 .main {
   max-width: 900px;
   margin: 0 auto;
-  padding: 48px 24px;
-  padding-top: 1000px;
+  /* padding: 48px 24px; */
+  /* padding-top: 1000px; */
   /* 48px original + 60px Navbar */
   box-sizing: border-box;
 }
