@@ -7,7 +7,7 @@
 
 .backBtn {
   position: absolute;
-  top: 75px;
+  top: 80px;
   /* distance from top */
   right: 20px;
   /* distance from right */
@@ -35,7 +35,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 100px 2rem 2rem 2rem;
+  padding: 0px 2rem 2rem 2rem;
 }
 
 .uploadCard {

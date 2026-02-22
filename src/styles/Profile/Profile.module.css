@@ -1,13 +1,13 @@
 .profilePage {
   min-height: 100vh;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  padding-top: 70px;
+  /* padding-top: 70px; */
 }
 
 .container {
   max-width: 1000px;
   margin: 0 auto;
-  padding: 2rem 1.5rem;
+  padding: 0rem 1.5rem;
   position: relative;
 }
 
